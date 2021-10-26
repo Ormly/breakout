@@ -1,7 +1,9 @@
-#include <iostream>
+#include "VertexBuffer.h";
+#include "IndexBuffer.h";
 
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
+
+
     return 0;
 }

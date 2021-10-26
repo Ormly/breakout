@@ -7,7 +7,11 @@ message(STATUS "Found OpenGL")
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(breakout
-        src/BreakoutApp.cpp)
+        src/BreakoutApp.cpp
+        src/VertexBuffer.h
+        src/VertexBuffer.cpp
+        src/IndexBuffer.h
+        src/IndexBuffer.cpp)
 
 # GLM
 find_package(GLM REQUIRED)
