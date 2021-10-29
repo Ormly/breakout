@@ -8,10 +8,20 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_executable(breakout
         src/BreakoutApp.cpp
-        src/VertexBuffer.h
-        src/VertexBuffer.cpp
-        src/IndexBuffer.h
-        src/IndexBuffer.cpp)
+        res/shaders/FragmentShader.fragmentshader
+        res/shaders/VertexShader.vertexshader
+        src/renderer/VertexBuffer.h
+        src/renderer/VertexBuffer.cpp
+        src/renderer/IndexBuffer.h
+        src/renderer/IndexBuffer.cpp
+        src/renderer/VertexArray.cpp
+        src/renderer/VertexArray.h
+        src/renderer/VertexBufferLayout.cpp
+        src/renderer/VertexBufferLayout.h
+        src/renderer/Renderer.cpp
+        src/renderer/Renderer.h
+        src/renderer/Shaders.cpp
+        src/renderer/Shaders.h)
 
 # GLM
 find_package(GLM REQUIRED)
