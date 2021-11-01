@@ -38,6 +38,11 @@ void Shaders::setUniform4f(const std::string &name, GLfloat value1, GLfloat valu
     glUniform4f(getUniformLocation(name), value1, value2, value3, value4);
 }
 
+void Shaders::setUniformMat4f(const std::string &name, const glm::mat4 &matrix)
+{
+    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
+}
+
 GLuint Shaders::getUniformLocation(const std::string &name)
 {
     if(m_uniformLocationCache.find(name) != m_uniformLocationCache.end())
@@ -180,6 +185,8 @@ GLuint Shaders::createShaders()
 
     return programID;
 }
+
+
 
 
 

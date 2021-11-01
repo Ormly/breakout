@@ -4,6 +4,7 @@
 #include <string>
 #include <GL/glew.h>
 #include <unordered_map>
+#include "glm/glm.hpp"
 
 class Shaders
 {
@@ -20,6 +21,7 @@ public:
     void unbind() const;
 
     void setUniform4f(const std::string& name, GLfloat value1, GLfloat value2, GLfloat value3, GLfloat value4);
+    void setUniformMat4f(const std::string& name, const glm::mat4& matrix);
 private:
     GLboolean readShadersFromFile();
     GLuint compileVertexShader();
