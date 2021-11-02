@@ -7,6 +7,7 @@ message(STATUS "Found OpenGL")
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(breakout
+        src/BreakoutApp.h
         src/BreakoutApp.cpp
         res/shaders/FragmentShader.fragmentshader
         res/shaders/VertexShader.vertexshader
@@ -21,7 +22,7 @@ add_executable(breakout
         src/renderer/Renderer.cpp
         src/renderer/Renderer.h
         src/renderer/Shaders.cpp
-        src/renderer/Shaders.h)
+        src/renderer/Shaders.h src/BreakoutApp.h)
 
 # GLM
 find_package(GLM REQUIRED)
