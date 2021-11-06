@@ -20,7 +20,7 @@ struct LayoutElement
             case GL_UNSIGNED_BYTE: return 1;
         }
 
-        //TODO: check for nonexistend type
+        //TODO: check for nonexistent type
         return 0;
     }
 };

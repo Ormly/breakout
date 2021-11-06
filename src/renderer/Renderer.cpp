@@ -29,10 +29,9 @@ GLboolean glLogCall(const char *function, const char *file, int line)
 
 void Renderer::draw(const VertexArray &vertexArray, const IndexBuffer &indexBuffer, const Shaders &shaders) const
 {
-    shaders.bind();
     vertexArray.bind();
+    shaders.bind();
     indexBuffer.bind();
-
     glDrawElements(GL_TRIANGLES, indexBuffer.getNumberOfIndices(), GL_UNSIGNED_INT, nullptr);
 }
 

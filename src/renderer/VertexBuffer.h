@@ -8,7 +8,7 @@ class VertexBuffer
 private:
     GLuint m_bufferID;
 public:
-    VertexBuffer(const void* data);
+    VertexBuffer(const void* data, const GLint size);
     ~VertexBuffer();
 
     void bind() const;
