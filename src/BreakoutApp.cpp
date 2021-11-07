@@ -34,8 +34,9 @@ int main()
     shaders->bind();
 
     projection = glm::ortho(0.0f, windowWidth, 0.0f, windowHeight);
+    identity = glm::mat4(1.0f);
     shaders->setUniformMat4f("u_projection", projection);
-    //shaders->setUniformMat4f("u_translation", identity);
+    shaders->setUniformMat4f("u_translation", identity);
     //shaders.unbind();
 
     static double limitFPS = 1.0 / 60.0;
@@ -85,23 +86,32 @@ int main()
 
 void update()
 {
+    GLfloat paddleSpeed = 5.0f;
+
     if(glfwGetKey(window, GLFW_KEY_RIGHT) || glfwGetKey(window, GLFW_KEY_D))
-        paddle->translate(10.0f * deltaTime);
+    {
+        //paddle->translate(10.0f * deltaTime);
+        paddle->addToOffset(paddleSpeed * deltaTime);
+        paddleTranslation = glm::translate(identity, glm::vec3(paddle->getOffset(),0.0f,0.0f));
+    }
 
     if(glfwGetKey(window, GLFW_KEY_LEFT) || glfwGetKey(window, GLFW_KEY_A))
-        paddle->translate(-10.0f * deltaTime);
-    //paddleTranslation = glm::translate(identity, glm::vec3(paddle->getOffset() * deltaTime,0.0f,0.0f));
+    {
+        //paddle->translate(-10.0f * deltaTime);
+        paddle->addToOffset(paddleSpeed * deltaTime * -1.0f);
+        paddleTranslation = glm::translate(identity, glm::vec3(paddle->getOffset(),0.0f,0.0f));
+    }
 }
 
 void render()
 {
     renderer.clear();
 
-    //shaders->setUniformMat4f("u_translation", identity);
+    shaders->setUniformMat4f("u_translation", identity);
     shaders->setUniform4f("u_color", frame->getColor().at(0), frame->getColor().at(1), frame->getColor().at(2), frame->getColor().at(3));
     renderer.draw(*(frame->getVertexArray()),*(frame->getIndexBuffer()), *shaders);
 
-    //shaders->setUniformMat4f("u_translation", paddleTranslation);
+    shaders->setUniformMat4f("u_translation", paddleTranslation);
     shaders->setUniform4f("u_color", paddle->getColor().at(0), paddle->getColor().at(1), paddle->getColor().at(2), paddle->getColor().at(3));
     renderer.draw(*(paddle->getVertexArray()),*(paddle->getIndexBuffer()), *shaders);
 }

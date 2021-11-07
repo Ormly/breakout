@@ -16,6 +16,8 @@ GLfloat windowHeight;
 
 GLdouble deltaTime;
 glm::mat4 projection;
+glm::mat4 paddleTranslation;
+glm::mat4 identity;
 
 Renderer renderer;
 Shaders* shaders;

@@ -5,7 +5,7 @@ Paddle::Paddle(std::vector<GLfloat> data, GLuint dataSize, std::vector<GLuint> i
                std::vector<GLuint> collisionBox, std::vector<GLfloat> color)
                :m_data(std::move(data)), m_dataSize(dataSize), m_indices(std::move(indices)),
                m_numberOfIndices(numberOfIndices), m_collisionBox(std::move(collisionBox)), m_color(std::move(color)),
-               m_paddleSize(100)
+               m_paddleSize(100), m_offset(0.0f)
 {
     m_vertexArray = new VertexArray();
     m_vertexBuffer = new VertexBuffer(m_data.data(), m_dataSize);
@@ -38,6 +38,7 @@ std::vector<GLfloat> Paddle::getColor() const
     return m_color;
 }
 
+/*
 void Paddle::translate(GLfloat offset)
 {
     for(int i = 0; i < m_data.size(); ++i)
@@ -76,8 +77,8 @@ void Paddle::translate(GLfloat offset)
     m_vertexArray->addBuffer(*m_vertexBuffer, frameVertexBufferLayout);
     m_indexBuffer->bind();
 }
+ */
 
-/*
 GLfloat Paddle::getOffset() const
 {
     return m_offset;
@@ -87,5 +88,4 @@ void Paddle::addToOffset(GLfloat addition)
 {
     m_offset += addition;
 }
- */
 
