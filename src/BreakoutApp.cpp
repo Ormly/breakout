@@ -35,13 +35,12 @@ int main()
 
     initializeGameObjects();
 
-    glm::mat4 projection = glm::ortho(0.0f, windowWidth, 0.0f, windowHeight);
-    glm::mat4 identity(1.0f);
     //glm::mat4 transform(glm::translate());
     Shaders shaders("../res/shaders/VertexShader.vertexshader",
                     "../res/shaders/FragmentShader.fragmentshader");
     shaders.bind();
-    shaders.setUniform4f("u_color", frame->getColor().at(0), frame->getColor().at(1), frame->getColor().at(2), frame->getColor().at(3));
+    glm::mat4 projection = glm::ortho(0.0f, windowWidth, 0.0f, windowHeight);
+    glm::mat4 identity(1.0f);
     shaders.setUniformMat4f("u_projection", projection);
     //shaders.setUniformMat4f("u_transform", identity);
 
@@ -50,6 +49,8 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         renderer.clear();
+        //draw Frame
+        shaders.setUniform4f("u_color", frame->getColor().at(0), frame->getColor().at(1), frame->getColor().at(2), frame->getColor().at(3));
         renderer.draw(*frameVertexArray,*frameIndexBuffer, shaders);
 
         glfwSwapBuffers(window);
@@ -143,7 +144,7 @@ GLboolean initializeGameObjects()
     frameCollisionBoxes.push_back(frameCollisionBoxSecond);
     frameCollisionBoxes.push_back(frameCollisionBoxThird);
 
-    std::vector<GLfloat> frameColor({0.90f,0.90f,0.90f,1.0f});
+    std::vector<GLfloat> frameColor({0.823f,0.823f,0.823f,1.0f});
 
     frame = new Frame(frameData, frameData.size() * sizeof(GLfloat), frameIndices, frameIndices.size(), frameCollisionBoxes, frameColor);
 
