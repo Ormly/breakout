@@ -4,6 +4,7 @@
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
 #include "objects/Frame.h"
+#include "objects/Paddle.h"
 #include "renderer/VertexArray.h"
 #include "renderer/IndexBuffer.h"
 
@@ -14,9 +15,7 @@ GLfloat windowHeight;
 GLdouble deltaTime;
 
 Frame* frame;
-VertexArray* frameVertexArray;
-VertexBuffer* frameVertexBuffer;
-IndexBuffer* frameIndexBuffer;
+Paddle* paddle;
 
 GLboolean initializeWindow();
 GLboolean initializeGameObjects();

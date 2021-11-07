@@ -70,7 +70,10 @@ int main()
         renderer.clear();
         //draw Frame
         shaders.setUniform4f("u_color", frame->getColor().at(0), frame->getColor().at(1), frame->getColor().at(2), frame->getColor().at(3));
-        renderer.draw(*frameVertexArray,*frameIndexBuffer, shaders);
+        renderer.draw(*(frame->getVertexArray()),*(frame->getIndexBuffer()), shaders);
+
+        shaders.setUniform4f("u_color", paddle->getColor().at(0), paddle->getColor().at(1), paddle->getColor().at(2), paddle->getColor().at(3));
+        renderer.draw(*(paddle->getVertexArray()),*(paddle->getIndexBuffer()), shaders);
 
         numberOfFrames++;
         if (glfwGetTime() - timer > 1.0)
@@ -154,18 +157,18 @@ GLboolean initializeGameObjects()
     };
 
     std::vector<GLuint> frameIndices = {
-            0, 1, 7,
-            7, 8, 0,
-            2, 3, 5,
-            5, 6, 2,
-            4, 5, 8,
-            8, 9, 4
+            0,1,7,
+            7,8,0,
+            2,3,5,
+            5,6,2,
+            4,5,8,
+            8,9,4
     };
 
     //Todo: Make this not be stupid as hell
-    std::vector<GLuint> frameCollisionBoxFirst({0,1,7,7,8,0});
-    std::vector<GLuint> frameCollisionBoxSecond({2,3,5,5,6,2});
-    std::vector<GLuint> frameCollisionBoxThird({4,5,8,8,9,4});
+    std::vector<GLuint> frameCollisionBoxFirst({0,1,7,8});
+    std::vector<GLuint> frameCollisionBoxSecond({2,3,5,6});
+    std::vector<GLuint> frameCollisionBoxThird({4,5,8,9});
     std::vector<std::vector<GLuint>> frameCollisionBoxes;
     frameCollisionBoxes.push_back(frameCollisionBoxFirst);
     frameCollisionBoxes.push_back(frameCollisionBoxSecond);
@@ -175,15 +178,24 @@ GLboolean initializeGameObjects()
 
     frame = new Frame(frameData, frameData.size() * sizeof(GLfloat), frameIndices, frameIndices.size(), frameCollisionBoxes, frameColor);
 
-    frameVertexArray = new VertexArray();
-    frameVertexBuffer = new VertexBuffer(frame->getData().data(), frame->getDataSize());
-    VertexBufferLayout frameVertexBufferLayout;
-    frameVertexBufferLayout.push<GLfloat>(2);
-    frameVertexArray->addBuffer(*frameVertexBuffer, frameVertexBufferLayout);
-    frameIndexBuffer = new IndexBuffer(frame->getIndices().data(), frame->getNumberOfIndices());
-    frameVertexBuffer->unbind();
-    frameVertexArray->unbind();
-    frameIndexBuffer->unbind();
+
+    //Initialize Paddle
+    std::vector<GLfloat> paddleData = {
+            334.0f,50.0f,
+            434.0f,50.0f,
+            434.0f,70.0f,
+            334.0f,70.0f
+    };
+
+    std::vector<GLuint> paddleIndices = {
+            0,1,2,
+            2,3,0
+    };
+
+    std::vector<GLuint> paddleCollisionBox({0,1,2,3});
+    std::vector<GLfloat> paddleColor({0.0f,0.36f,0.541f,1.0f});
+
+    paddle = new Paddle(paddleData, paddleData.size() * sizeof(GLfloat), paddleIndices, paddleIndices.size(), paddleCollisionBox, paddleColor);
 
     return GL_TRUE;
 }

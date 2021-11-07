@@ -32,6 +32,7 @@ void Renderer::draw(const VertexArray &vertexArray, const IndexBuffer &indexBuff
     vertexArray.bind();
     shaders.bind();
     indexBuffer.bind();
+
     glDrawElements(GL_TRIANGLES, indexBuffer.getNumberOfIndices(), GL_UNSIGNED_INT, nullptr);
 }
 
