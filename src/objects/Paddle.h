@@ -18,12 +18,19 @@ private:
     VertexArray* m_vertexArray;
     VertexBuffer* m_vertexBuffer;
     IndexBuffer* m_indexBuffer;
+    GLuint m_paddleSize;
 public:
     Paddle(std::vector<GLfloat> data, GLuint dataSize, std::vector<GLuint> indices, GLuint numberOfIndices, std::vector<GLuint> collisionBox, std::vector<GLfloat> color);
     std::vector<GLuint> getCollisionBox() const;
     std::vector<GLfloat> getColor() const;
     VertexArray* getVertexArray() const;
     IndexBuffer* getIndexBuffer() const;
+    void translate(GLfloat offset);
+
+    /*
+    void addToOffset(GLfloat addition);
+    GLfloat getOffset() const;
+     */
 };
 
 

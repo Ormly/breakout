@@ -7,17 +7,25 @@
 #include "objects/Paddle.h"
 #include "renderer/VertexArray.h"
 #include "renderer/IndexBuffer.h"
+#include "renderer/Shaders.h"
+#include "renderer/Renderer.h"
 
 GLFWwindow* window;
 GLfloat windowWidth;
 GLfloat windowHeight;
 
 GLdouble deltaTime;
+glm::mat4 projection;
+
+Renderer renderer;
+Shaders* shaders;
 
 Frame* frame;
 Paddle* paddle;
 
 GLboolean initializeWindow();
-GLboolean initializeGameObjects();
+void initializeGameObjects();
+void update();
+void render();
 
 #endif //BREAKOUT_BREAKOUTAPP_H
