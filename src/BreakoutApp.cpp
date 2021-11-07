@@ -1,15 +1,11 @@
 #include "BreakoutApp.h"
 
 #include <iostream>
-#include <iterator>
 #include <vector>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "renderer/VertexBuffer.h"
-#include "renderer/IndexBuffer.h"
-#include "renderer/VertexArray.h"
 #include "renderer/Shaders.h"
 #include "renderer/Renderer.h"
 
@@ -42,13 +38,6 @@ int main()
     glm::mat4 projection = glm::ortho(0.0f, windowWidth, 0.0f, windowHeight);
     glm::mat4 identity(1.0f);
     //glm::mat4 transform(glm::translate());
-
-    VertexArray vertexArray;
-    VertexBuffer vertexBuffer(frame->getData(), frame->getDataSize());
-    VertexBufferLayout vertexBufferLayout;
-    vertexBufferLayout.push<GLfloat>(2);
-    vertexArray.addBuffer(vertexBuffer, vertexBufferLayout);
-    IndexBuffer indexBuffer((GLuint*)frame->getIndices(), frame->getNumberOfIndices());
     Shaders shaders("../res/shaders/VertexShader.vertexshader",
                     "../res/shaders/FragmentShader.fragmentshader");
     shaders.bind();
@@ -56,18 +45,12 @@ int main()
     shaders.setUniformMat4f("u_projection", projection);
     //shaders.setUniformMat4f("u_transform", identity);
 
-
-    vertexArray.unbind();
-    vertexBuffer.unbind();
-    indexBuffer.unbind();
-    shaders.unbind();
-
     Renderer renderer;
-
+    shaders.unbind();
     while (!glfwWindowShouldClose(window))
     {
         renderer.clear();
-        renderer.draw(vertexArray, indexBuffer, shaders);
+        renderer.draw(*frameVertexArray,*frameIndexBuffer, shaders);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -129,7 +112,7 @@ GLboolean initializeWindow()
 GLboolean initializeGameObjects()
 {
     //Initialize Frame
-    frameData = {
+    std::vector<GLfloat> frameData = {
             0.0f,0.0f,
             20.0f,0.0f,
             748.0f,0.0f,
@@ -142,7 +125,7 @@ GLboolean initializeGameObjects()
             0.0f,1004.0f
     };
 
-    frameIndices = {
+    std::vector<GLuint> frameIndices = {
             0, 1, 7,
             7, 8, 0,
             2, 3, 5,
@@ -162,7 +145,17 @@ GLboolean initializeGameObjects()
 
     std::vector<GLfloat> frameColor({0.90f,0.90f,0.90f,1.0f});
 
-    frame = new Frame(frameData.data(), frameData.size() * sizeof(GLfloat), frameIndices.data(), frameIndices.size(), frameCollisionBoxes, frameColor);
+    frame = new Frame(frameData, frameData.size() * sizeof(GLfloat), frameIndices, frameIndices.size(), frameCollisionBoxes, frameColor);
+
+    frameVertexArray = new VertexArray();
+    frameVertexBuffer = new VertexBuffer(frame->getData().data(), frame->getDataSize());
+    VertexBufferLayout frameVertexBufferLayout;
+    frameVertexBufferLayout.push<GLfloat>(2);
+    frameVertexArray->addBuffer(*frameVertexBuffer, frameVertexBufferLayout);
+    frameIndexBuffer = new IndexBuffer(frame->getIndices().data(), frame->getNumberOfIndices());
+    frameVertexBuffer->unbind();
+    frameVertexArray->unbind();
+    frameIndexBuffer->unbind();
 
     return GL_TRUE;
 }

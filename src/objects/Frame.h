@@ -7,17 +7,17 @@
 class Frame
 {
 private:
-    void* m_data;
+    std::vector<GLfloat> m_data;
     GLuint m_dataSize;
-    void* m_indices;
+    std::vector<GLuint> m_indices;
     GLuint m_numberOfIndices;
     std::vector<std::vector<GLuint>> m_collisionBoxes;
     std::vector<GLfloat> m_color;
 public:
-    Frame(void* data, GLuint dataSize, void* indices, GLuint numberOfIndices, std::vector<std::vector<GLuint>> collisionBoxes, std::vector<GLfloat> color);
-    void* getData() const;
+    Frame(std::vector<GLfloat> data, GLuint dataSize, std::vector<GLuint> indices, GLuint numberOfIndices, std::vector<std::vector<GLuint>> collisionBoxes, std::vector<GLfloat> color);
+    std::vector<GLfloat> getData() const;
     GLuint getDataSize() const;
-    void* getIndices() const;
+    std::vector<GLuint> getIndices() const;
     GLuint getNumberOfIndices() const;
     std::vector<std::vector<GLuint>> getCollisionBoxes() const;
     std::vector<GLfloat> getColor() const;
