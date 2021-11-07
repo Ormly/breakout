@@ -46,12 +46,39 @@ int main()
 
     Renderer renderer;
     shaders.unbind();
+
+    static double limitFPS = 1.0 / 60.0;
+    double previousTime = glfwGetTime();
+    double timer = previousTime;
+    deltaTime = 0;
+    int numberOfFrames = 0;
+    int numberOfUpdates = 0;
+
     while (!glfwWindowShouldClose(window))
     {
+        GLdouble currentTime = glfwGetTime();
+        deltaTime += (currentTime - previousTime) / limitFPS;
+        previousTime = currentTime;
+
+        while (deltaTime >= 1.0)
+        {
+            // Update function
+            numberOfUpdates++;
+            deltaTime--;
+        }
+
         renderer.clear();
         //draw Frame
         shaders.setUniform4f("u_color", frame->getColor().at(0), frame->getColor().at(1), frame->getColor().at(2), frame->getColor().at(3));
         renderer.draw(*frameVertexArray,*frameIndexBuffer, shaders);
+
+        numberOfFrames++;
+        if (glfwGetTime() - timer > 1.0)
+        {
+            timer++;
+            std::cout << "FPS: " << numberOfFrames << " || # updates per second: " << numberOfUpdates << std::endl;
+            numberOfUpdates = 0, numberOfFrames = 0;
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();

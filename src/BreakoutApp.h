@@ -11,6 +11,8 @@ GLFWwindow* window;
 GLfloat windowWidth;
 GLfloat windowHeight;
 
+GLdouble deltaTime;
+
 Frame* frame;
 VertexArray* frameVertexArray;
 VertexBuffer* frameVertexBuffer;
