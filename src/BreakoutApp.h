@@ -10,6 +10,7 @@
 #include "renderer/Shaders.h"
 #include "renderer/Renderer.h"
 #include "objects/BrickGroup.h"
+#include "objects/Ball.h"
 
 GLFWwindow* window;
 GLfloat windowWidth;
@@ -19,12 +20,14 @@ GLdouble deltaTime;
 glm::mat4 projection;
 glm::mat4 paddleTranslation;
 glm::mat4 identity;
+glm::mat4 ballTranslation;
 
 Renderer renderer;
 Shaders* shaders;
 
 Frame* frame;
 Paddle* paddle;
+Ball* ball;
 
 std::vector<BrickGroup*> brickGroups;
 GLuint rowsPerBrickGroup;
@@ -32,6 +35,10 @@ GLuint numberOfBrickGroups;
 
 GLboolean initializeWindow();
 void initializeGameObjects();
+void initializeFrame();
+void initializePaddle();
+void initializeBricks();
+void initializeBall();
 void update();
 void render();
 BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vector<GLuint> originBrickIndices, std::vector<GLfloat> color);

@@ -77,19 +77,6 @@ void Paddle::addToOffset(GLfloat addition)
 
         resetPaddleBuffer();
     }
-
-    /*
-    std::cout <<
-    "Offset: " <<
-    m_offset <<
-    "\n" <<
-    "Left X: " <<
-    m_collisionBox.at(0) <<
-    "\n" <<
-    "Right X: " <<
-    m_collisionBox.at(2) <<
-    std::endl;
-     */
 }
 
 void Paddle::resetPaddleBuffer()

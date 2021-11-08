@@ -3,6 +3,7 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <random>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -123,6 +124,10 @@ void render()
     shaders->setUniformMat4f("u_translation", paddleTranslation);
     shaders->setUniform4f("u_color", paddle->getColor().at(0), paddle->getColor().at(1), paddle->getColor().at(2), paddle->getColor().at(3));
     renderer.draw(*(paddle->getVertexArray()),*(paddle->getIndexBuffer()), *shaders);
+
+    shaders->setUniformMat4f("u_translation", identity);
+    shaders->setUniform4f("u_color", ball->getColor().at(0), ball->getColor().at(1), ball->getColor().at(2), ball->getColor().at(3));
+    renderer.draw(*(ball->getVertexArray()),*(ball->getIndexBuffer()), *shaders);
 }
 
 GLboolean initializeWindow()
@@ -176,7 +181,14 @@ GLboolean initializeWindow()
 
 void initializeGameObjects()
 {
-    //Initialize Frame
+    initializeFrame();
+    initializePaddle();
+    initializeBricks();
+    initializeBall();
+}
+
+void initializeFrame()
+{
     std::vector<GLfloat> frameData =
     {
         0.0f,0.0f,
@@ -212,9 +224,10 @@ void initializeGameObjects()
 
     std::vector<GLfloat> frameColor({0.823f,0.823f,0.823f,1.0f});
     frame = new Frame(frameData, frameData.size() * sizeof(GLfloat), frameIndices, frameIndices.size(), frameCollisionBoxes, frameColor);
+}
 
-
-    //Initialize Paddle
+void initializePaddle()
+{
     std::vector<GLfloat> paddleData =
     {
         334.0f,50.0f,
@@ -233,16 +246,17 @@ void initializeGameObjects()
     std::vector<GLfloat> paddleColor({0.0f,0.36f,0.541f,1.0f});
 
     paddle = new Paddle(paddleData, paddleData.size() * sizeof(GLfloat), paddleIndices, paddleIndices.size(), paddleCollisionBox, paddleColor, paddleData.at(2) - paddleData.at(0));
+}
 
-
-    //Initialized Bricks
+void initializeBricks()
+{
     rowsPerBrickGroup = 2;
     numberOfBrickGroups = 1;
 
     std::vector<GLuint> originBrickIndices =
     {
-            0,1,2,
-            2,3,0
+        0,1,2,
+        2,3,0
     };
 
     std::vector<GLfloat> firstLayerOriginBrickPositions =
@@ -274,10 +288,10 @@ void initializeGameObjects()
     //Todo: derive subsequent layer positions from first origin instead of hardcoding magic numbers
     std::vector<GLfloat> secondLayerOriginBrickPositions =
     {
-            31.0f, 788.0f,
-            88.0f, 788.0f,
-            88.0f, 802.0f,
-            31.0f, 802.0f
+        31.0f, 788.0f,
+        88.0f, 788.0f,
+        88.0f, 802.0f,
+        31.0f, 802.0f
     };
     std::vector<GLfloat> secondLayerColor({0.772f, 0.501f, 0.0f, 1.0f});
     BrickGroup* secondLayer = createBrickGroup(secondLayerOriginBrickPositions, originBrickIndices, secondLayerColor);
@@ -285,10 +299,10 @@ void initializeGameObjects()
 
     std::vector<GLfloat> thirdLayerOriginBrickPositions =
     {
-            31.0f, 756.0f,
-            88.0f, 756.0f,
-            88.0f, 770.0f,
-            31.0f, 770.0f
+        31.0f, 756.0f,
+        88.0f, 756.0f,
+        88.0f, 770.0f,
+        31.0f, 770.0f
     };
     std::vector<GLfloat> thirdLayerColor({0.0f, 0.498f, 0.137f, 1.0f});
     BrickGroup* thirdLayer = createBrickGroup(thirdLayerOriginBrickPositions, originBrickIndices, thirdLayerColor);
@@ -296,14 +310,44 @@ void initializeGameObjects()
 
     std::vector<GLfloat> fourthLayerOriginBrickPositions =
     {
-            31.0f, 724.0f,
-            88.0f, 724.0f,
-            88.0f, 738.0f,
-            31.0f, 738.0f
+        31.0f, 724.0f,
+        88.0f, 724.0f,
+        88.0f, 738.0f,
+        31.0f, 738.0f
     };
     std::vector<GLfloat> fourthLayerColor({0.768f, 0.776f, 0.121f, 1.0f});
     BrickGroup* fourthLayer = createBrickGroup(fourthLayerOriginBrickPositions, originBrickIndices, fourthLayerColor);
     brickGroups.push_back(fourthLayer);
+}
+
+void initializeBall()
+{
+    GLfloat ballSize = 8.0f;
+
+    std::random_device rd;
+    std::default_random_engine eng(rd());
+    std::uniform_int_distribution<int> distribution(50.0f, windowWidth - 50.0f);
+    GLfloat initialX = distribution(eng);
+    GLfloat initialY = windowHeight / 2.0f;
+
+    std::vector<GLfloat> positions =
+    {
+        initialX - ballSize, initialY - ballSize,
+        initialX + ballSize, initialY - ballSize,
+        initialX + ballSize, initialY + ballSize,
+        initialX - ballSize, initialY + ballSize
+    };
+
+    std::vector<GLuint> indices =
+    {
+        0,1,2,
+        2,3,0
+    };
+
+    std::vector<GLuint> collisionBox({0,1,2,3});
+    std::vector<GLfloat> color({1.0f,1.0f,1.0f,1.0f});
+
+    ball = new Ball(positions, indices, collisionBox, color);
 }
 
 //This is the dumbest code I've ever written
