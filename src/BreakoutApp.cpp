@@ -225,5 +225,5 @@ void initializeGameObjects()
     std::vector<GLuint> paddleCollisionBox({0,1,2,3});
     std::vector<GLfloat> paddleColor({0.0f,0.36f,0.541f,1.0f});
 
-    paddle = new Paddle(paddleData, paddleData.size() * sizeof(GLfloat), paddleIndices, paddleIndices.size(), paddleCollisionBox, paddleColor);
+    paddle = new Paddle(paddleData, paddleData.size() * sizeof(GLfloat), paddleIndices, paddleIndices.size(), paddleCollisionBox, paddleColor, paddleData.at(2) - paddleData.at(0));
 }

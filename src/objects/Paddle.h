@@ -21,7 +21,8 @@ private:
     GLuint m_paddleSize;
     GLfloat m_offset;
 public:
-    Paddle(std::vector<GLfloat> data, GLuint dataSize, std::vector<GLuint> indices, GLuint numberOfIndices, std::vector<GLuint> collisionBoxIndices, std::vector<GLfloat> color);
+    Paddle(std::vector<GLfloat> data, GLuint dataSize, std::vector<GLuint> indices, GLuint numberOfIndices,
+           std::vector<GLuint> collisionBoxIndices, std::vector<GLfloat> color, GLuint paddleSize);
     std::vector<GLfloat> getCollisionBox() const;
     std::vector<GLfloat> getColor() const;
     VertexArray* getVertexArray() const;

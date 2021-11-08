@@ -2,10 +2,10 @@
 #include <iostream>
 
 Paddle::Paddle(std::vector<GLfloat> data, GLuint dataSize, std::vector<GLuint> indices, GLuint numberOfIndices,
-               std::vector<GLuint> collisionBoxIndices, std::vector<GLfloat> color)
+               std::vector<GLuint> collisionBoxIndices, std::vector<GLfloat> color, GLuint paddleSize)
                :m_data(std::move(data)), m_dataSize(dataSize), m_indices(std::move(indices)),
                m_numberOfIndices(numberOfIndices), m_color(std::move(color)),
-               m_paddleSize(100), m_offset(0.0f)
+               m_paddleSize(paddleSize), m_offset(0.0f)
 {
     m_vertexArray = new VertexArray();
     m_vertexBuffer = new VertexBuffer(m_data.data(), m_dataSize);
