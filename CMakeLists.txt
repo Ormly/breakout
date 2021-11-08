@@ -30,7 +30,9 @@ add_executable(breakout
         src/objects/Brick.cpp
         src/objects/Brick.h
         src/objects/Ball.cpp
-        src/objects/Ball.h)
+        src/objects/Ball.h
+        src/objects/BrickGroup.cpp
+        src/objects/BrickGroup.h)
 
 # GLM
 find_package(GLM REQUIRED)

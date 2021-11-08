@@ -1,10 +1,12 @@
 #include "BreakoutApp.h"
 
 #include <iostream>
+#include <utility>
 #include <vector>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "objects/Brick.h"
 
 static void error_callback(int error, const char* description)
 {
@@ -111,6 +113,12 @@ void render()
     shaders->setUniformMat4f("u_translation", identity);
     shaders->setUniform4f("u_color", frame->getColor().at(0), frame->getColor().at(1), frame->getColor().at(2), frame->getColor().at(3));
     renderer.draw(*(frame->getVertexArray()),*(frame->getIndexBuffer()), *shaders);
+
+    for(BrickGroup* brickGroup : brickGroups)
+    {
+        shaders->setUniform4f("u_color", brickGroup->getColor().at(0), brickGroup->getColor().at(1), brickGroup->getColor().at(2), brickGroup->getColor().at(3));
+        renderer.draw(*(brickGroup->getVertexArray()),*(brickGroup->getIndexBuffer()), *shaders);
+    }
 
     shaders->setUniformMat4f("u_translation", paddleTranslation);
     shaders->setUniform4f("u_color", paddle->getColor().at(0), paddle->getColor().at(1), paddle->getColor().at(2), paddle->getColor().at(3));
@@ -226,4 +234,99 @@ void initializeGameObjects()
     std::vector<GLfloat> paddleColor({0.0f,0.36f,0.541f,1.0f});
 
     paddle = new Paddle(paddleData, paddleData.size() * sizeof(GLfloat), paddleIndices, paddleIndices.size(), paddleCollisionBox, paddleColor, paddleData.at(2) - paddleData.at(0));
+
+
+    //Initialized Bricks
+    numberOfBrickGroupLayers = 2;
+
+    std::vector<GLuint> originBrickIndices =
+    {
+            0,1,2,
+            2,3,0
+    };
+
+    std::vector<GLfloat> zeroLayerOriginBrickPositions =
+    {
+        31.0f, 940.0f,
+        88.0f, 940.0f,
+        88.0f, 954.0f,
+        31.0f, 954.0f
+    };
+
+    std::vector<GLfloat> zeroLayerColor({0.631f, 0.031f, 0.0f, 1.0f});
+    BrickGroup* zeroLayer = createBrickGroup(zeroLayerOriginBrickPositions, originBrickIndices, zeroLayerColor);
+    brickGroups.push_back(zeroLayer);
+}
+
+//This is the dumbest code I've ever written
+BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vector<GLuint> originBrickIndices, std::vector<GLfloat> color)
+{
+    std::vector<Brick> bricks;
+    std::vector<GLuint> brickLayout;
+    GLuint id = 0;
+    auto* originBrick = new Brick(originBrickPositions, id++);
+    bricks.push_back(*originBrick);
+    brickLayout.insert(brickLayout.end(), originBrickIndices.begin(), originBrickIndices.end());
+
+    std::vector<GLfloat> previousBrickPositions;
+    std::vector<GLfloat> brickToAddPositions;
+    std::vector<GLuint> brickToAddIndices;
+    GLuint counter = 2;
+    for(int i = 0; i < numberOfBrickGroupLayers; ++i)
+    {
+        if(i == 0)
+            previousBrickPositions = originBrickPositions;
+        else
+        {
+            previousBrickPositions.clear();
+            for(int j = 0; j < originBrickPositions.size(); ++j)
+            {
+                if(j % 2 != 0)
+                    previousBrickPositions.push_back(originBrickPositions.at(j) -
+                                                     (originBrickPositions.at(5) - originBrickPositions.at(3) + 2.0f));
+                else
+                    previousBrickPositions.push_back(originBrickPositions.at(j));
+            }
+            bricks.push_back(*(new Brick(previousBrickPositions, id++)));
+
+            brickToAddIndices.clear();
+            for(unsigned int layerZeroOriginBrickIndex : originBrickIndices)
+                brickToAddIndices.push_back(layerZeroOriginBrickIndex + counter * 4 - 4);
+
+            counter++;
+
+            brickLayout.insert(brickLayout.end(), brickToAddIndices.begin(), brickToAddIndices.end());
+        }
+
+        for(int j = 0; j < 11; ++j)
+        {
+            Brick* brickToAdd;
+            brickToAddIndices.clear();
+            brickToAddPositions.clear();
+
+            for(int k = 0; k < previousBrickPositions.size(); ++k)
+            {
+                if(k % 2 == 0)
+                    brickToAddPositions.push_back(previousBrickPositions.at(k) +
+                                                  (previousBrickPositions.at(2) - previousBrickPositions.at(0) + 2.0f)); //Todo: 2.0f --> padding member
+                else
+                    brickToAddPositions.push_back(previousBrickPositions.at(k));
+            }
+
+            brickToAddIndices.reserve(originBrickIndices.size());
+            for(unsigned int layerZeroOriginBrickIndex : originBrickIndices)
+                brickToAddIndices.push_back(layerZeroOriginBrickIndex + counter * 4 - 4);
+
+            counter++;
+
+            brickToAdd = new Brick(brickToAddPositions, id++);
+            bricks.push_back(*brickToAdd);
+            brickLayout.insert(brickLayout.end(), brickToAddIndices.begin(), brickToAddIndices.end());
+
+            previousBrickPositions = brickToAddPositions;
+        }
+    }
+
+    auto* brickGroup = new BrickGroup(bricks, brickLayout, std::move(color));
+    return brickGroup;
 }

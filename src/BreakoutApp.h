@@ -9,6 +9,7 @@
 #include "renderer/IndexBuffer.h"
 #include "renderer/Shaders.h"
 #include "renderer/Renderer.h"
+#include "objects/BrickGroup.h"
 
 GLFWwindow* window;
 GLfloat windowWidth;
@@ -25,9 +26,13 @@ Shaders* shaders;
 Frame* frame;
 Paddle* paddle;
 
+std::vector<BrickGroup*> brickGroups;
+GLuint numberOfBrickGroupLayers;
+
 GLboolean initializeWindow();
 void initializeGameObjects();
 void update();
 void render();
+BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vector<GLuint> originBrickIndices, std::vector<GLfloat> color);
 
 #endif //BREAKOUT_BREAKOUTAPP_H
