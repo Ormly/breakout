@@ -211,7 +211,6 @@ void initializeGameObjects()
     frameCollisionBoxes.push_back(frameCollisionBoxThird);
 
     std::vector<GLfloat> frameColor({0.823f,0.823f,0.823f,1.0f});
-
     frame = new Frame(frameData, frameData.size() * sizeof(GLfloat), frameIndices, frameIndices.size(), frameCollisionBoxes, frameColor);
 
 
@@ -237,7 +236,8 @@ void initializeGameObjects()
 
 
     //Initialized Bricks
-    numberOfBrickGroupLayers = 2;
+    rowsPerBrickGroup = 2;
+    numberOfBrickGroups = 1;
 
     std::vector<GLuint> originBrickIndices =
     {
@@ -245,17 +245,65 @@ void initializeGameObjects()
             2,3,0
     };
 
-    std::vector<GLfloat> zeroLayerOriginBrickPositions =
+    std::vector<GLfloat> firstLayerOriginBrickPositions =
     {
-        31.0f, 940.0f,
-        88.0f, 940.0f,
-        88.0f, 954.0f,
-        31.0f, 954.0f
+        31.0f, 820.0f,
+        88.0f, 820.0f,
+        88.0f, 834.0f,
+        31.0f, 834.0f
     };
+    std::vector<GLfloat> firstLayerColor({0.631f, 0.031f, 0.0f, 1.0f});
+    BrickGroup* firstLayer = createBrickGroup(firstLayerOriginBrickPositions, originBrickIndices, firstLayerColor);
+    brickGroups.push_back(firstLayer);
 
-    std::vector<GLfloat> zeroLayerColor({0.631f, 0.031f, 0.0f, 1.0f});
-    BrickGroup* zeroLayer = createBrickGroup(zeroLayerOriginBrickPositions, originBrickIndices, zeroLayerColor);
-    brickGroups.push_back(zeroLayer);
+    /*
+    numberOfBrickGroups++;
+    std::vector<GLfloat> secondLayerOriginBrickPositions;
+    for(int i = 0; i < firstLayer->getBricks().at(0).getPositions().size(); ++i)
+    {
+        if(i % 2 != 0)
+        {
+            secondLayerOriginBrickPositions.push_back(firstLayer->getBricks().at(0).getPositions().at(i) - numberOfBrickGroups *
+                                                     (firstLayer->getBricks().at(0).getPositions().at(5) - firstLayer->getBricks().at(0).getPositions().at(3) + 2.0f));
+        }
+        else
+            secondLayerOriginBrickPositions.push_back(firstLayer->getBricks().at(0).getPositions().at(i));
+    }
+     */
+
+    //Todo: derive subsequent layer positions from first origin instead of hardcoding magic numbers
+    std::vector<GLfloat> secondLayerOriginBrickPositions =
+    {
+            31.0f, 788.0f,
+            88.0f, 788.0f,
+            88.0f, 802.0f,
+            31.0f, 802.0f
+    };
+    std::vector<GLfloat> secondLayerColor({0.772f, 0.501f, 0.0f, 1.0f});
+    BrickGroup* secondLayer = createBrickGroup(secondLayerOriginBrickPositions, originBrickIndices, secondLayerColor);
+    brickGroups.push_back(secondLayer);
+
+    std::vector<GLfloat> thirdLayerOriginBrickPositions =
+    {
+            31.0f, 756.0f,
+            88.0f, 756.0f,
+            88.0f, 770.0f,
+            31.0f, 770.0f
+    };
+    std::vector<GLfloat> thirdLayerColor({0.0f, 0.498f, 0.137f, 1.0f});
+    BrickGroup* thirdLayer = createBrickGroup(thirdLayerOriginBrickPositions, originBrickIndices, thirdLayerColor);
+    brickGroups.push_back(thirdLayer);
+
+    std::vector<GLfloat> fourthLayerOriginBrickPositions =
+    {
+            31.0f, 724.0f,
+            88.0f, 724.0f,
+            88.0f, 738.0f,
+            31.0f, 738.0f
+    };
+    std::vector<GLfloat> fourthLayerColor({0.768f, 0.776f, 0.121f, 1.0f});
+    BrickGroup* fourthLayer = createBrickGroup(fourthLayerOriginBrickPositions, originBrickIndices, fourthLayerColor);
+    brickGroups.push_back(fourthLayer);
 }
 
 //This is the dumbest code I've ever written
@@ -272,7 +320,7 @@ BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vec
     std::vector<GLfloat> brickToAddPositions;
     std::vector<GLuint> brickToAddIndices;
     GLuint counter = 2;
-    for(int i = 0; i < numberOfBrickGroupLayers; ++i)
+    for(int i = 0; i < rowsPerBrickGroup; ++i)
     {
         if(i == 0)
             previousBrickPositions = originBrickPositions;

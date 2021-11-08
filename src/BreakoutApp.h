@@ -27,7 +27,8 @@ Frame* frame;
 Paddle* paddle;
 
 std::vector<BrickGroup*> brickGroups;
-GLuint numberOfBrickGroupLayers;
+GLuint rowsPerBrickGroup;
+GLuint numberOfBrickGroups;
 
 GLboolean initializeWindow();
 void initializeGameObjects();
