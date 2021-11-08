@@ -35,6 +35,7 @@ int main()
 
     projection = glm::ortho(0.0f, windowWidth, 0.0f, windowHeight);
     identity = glm::mat4(1.0f);
+    paddleTranslation = identity;
     shaders->setUniformMat4f("u_projection", projection);
     shaders->setUniformMat4f("u_translation", identity);
     //shaders.unbind();
