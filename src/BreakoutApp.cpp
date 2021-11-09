@@ -105,6 +105,78 @@ void update()
         paddle->addToOffset(paddleSpeed * deltaTime * -1.0f);
         paddleTranslation = glm::translate(identity, glm::vec3(paddle->getOffset(),0.0f,0.0f));
     }
+
+    //ball step
+    GLfloat centerX = ball->getCenter().x;
+    GLfloat centerY = ball->getCenter().y;
+    //GLfloat velocityX = centerX + ball->getVelocity().x;
+    //GLfloat velocityY = centerY + ball->getVelocity().y;
+    GLfloat additionX = 0;
+    GLfloat additionY = 0;
+
+    /*
+    if(velocityX < 0 && velocityY < 0)
+    {
+        additionX += centerX - velocityX;
+        additionY += centerY - velocityY;
+    }
+    if(velocityX > 0 && velocityY < 0)
+    {
+        additionX += velocityX - centerX;
+        additionY += centerY - velocityY;
+    }
+    if(velocityX > 0 && velocityY > 0)
+    {
+        additionX += velocityX - centerX;
+        additionY += velocityY - centerY;
+    }
+    if(velocityX < 0 && velocityY > 0)
+    {
+        additionX += centerX - velocityX;
+        additionY += velocityY - centerY;
+    }
+     */
+
+    //ball->addToOffset(additionX, additionY);
+    ball->addToOffset(ball->getVelocity().x * deltaTime, ball->getVelocity().y * deltaTime);
+    ballTranslation = glm::translate(identity, glm::vec3(ball->getOffset().x, ball->getOffset().y, 0.0f));
+
+    /*
+    std::cout << "Ball position x0/y0: " << ball->getPositions().at(0) << "/" << ball->getPositions().at(1) << "\n" <<
+                 "Ball position x1/y1: " << ball->getPositions().at(2) << "/" << ball->getPositions().at(3) << "\n" <<
+                 "Ball position x2/y2: " << ball->getPositions().at(4) << "/" << ball->getPositions().at(5) << "\n" <<
+                 "Ball position x3/y3: " << ball->getPositions().at(6) << "/" << ball->getPositions().at(7) << "\n" <<
+    std::endl;
+     */
+    std::cout << "Ball velocity x:" << ball->getVelocity().x << " | y: " << ball->getVelocity().y << std::endl;
+    std::cout << "Ball addition (velocity * deltaTime) x:" << ball->getVelocity().x * deltaTime << " | y: " << ball->getVelocity().y * deltaTime << std::endl;
+    std::cout << "Ball offset x:" << ball->getOffset().x << " | y: " << ball->getOffset().y << std::endl;
+
+    checkForCollisions();
+}
+
+void checkForCollisions()
+{
+    glm::vec2 changedVelocity;
+
+    //ball-paddle
+    GLfloat ballOriginX = ball->getCollisionBox().at(6);
+    GLfloat ballOriginY = ball->getCollisionBox().at(7);
+    GLfloat ballSideLength = ball->getSideLength();
+    GLfloat paddleOriginX = paddle->getCollisionBox().at(6);
+    GLfloat paddleOriginY = paddle->getCollisionBox().at(7);
+    GLfloat paddleWidth = paddle->getWidth();
+    GLfloat paddleHeight = paddle->getHeight();
+
+    if (ballOriginX + ballSideLength >= paddleOriginX &&
+        ballOriginX <= paddleOriginX + paddleWidth &&
+        ballOriginY + ballSideLength >= paddleOriginY &&
+        ballOriginY <= paddleOriginY + paddleHeight)
+    {
+        changedVelocity.x = ball->getVelocity().x;
+        changedVelocity.y = -ball->getVelocity().y;
+        ball->setVelocity(changedVelocity);
+    }
 }
 
 void render()
@@ -125,7 +197,7 @@ void render()
     shaders->setUniform4f("u_color", paddle->getColor().at(0), paddle->getColor().at(1), paddle->getColor().at(2), paddle->getColor().at(3));
     renderer.draw(*(paddle->getVertexArray()),*(paddle->getIndexBuffer()), *shaders);
 
-    shaders->setUniformMat4f("u_translation", identity);
+    shaders->setUniformMat4f("u_translation", ballTranslation);
     shaders->setUniform4f("u_color", ball->getColor().at(0), ball->getColor().at(1), ball->getColor().at(2), ball->getColor().at(3));
     renderer.draw(*(ball->getVertexArray()),*(ball->getIndexBuffer()), *shaders);
 }
@@ -242,10 +314,15 @@ void initializePaddle()
         2,3,0
     };
 
-    std::vector<GLuint> paddleCollisionBox({0,1,2,3});
     std::vector<GLfloat> paddleColor({0.0f,0.36f,0.541f,1.0f});
+    GLfloat xCenter = (paddleData.at(6) + paddleData.at(2)) / 2;
+    GLfloat yCenter = (paddleData.at(7) + paddleData.at(3)) / 2;
+    glm::vec2 paddleCenter(xCenter, yCenter);
 
-    paddle = new Paddle(paddleData, paddleData.size() * sizeof(GLfloat), paddleIndices, paddleIndices.size(), paddleCollisionBox, paddleColor, paddleData.at(2) - paddleData.at(0));
+
+    paddle = new Paddle(paddleData, paddleData.size() * sizeof(GLfloat), paddleIndices, paddleIndices.size(),
+                        paddleColor, paddleData.at(2) - paddleData.at(0), paddleData.at(5) - paddleData.at(3),
+                        paddleCenter);
 }
 
 void initializeBricks()
@@ -322,20 +399,20 @@ void initializeBricks()
 
 void initializeBall()
 {
-    GLfloat ballSize = 8.0f;
+    GLfloat sideLength = 16.0f;
 
     std::random_device rd;
     std::default_random_engine eng(rd());
-    std::uniform_int_distribution<int> distribution(50.0f, windowWidth - 50.0f);
-    GLfloat initialX = distribution(eng);
+    std::uniform_real_distribution<float> initialPositionDistribution(50.0f, windowWidth - 50.0f);
+    GLfloat initialX = initialPositionDistribution(eng);
     GLfloat initialY = windowHeight / 2.0f;
 
     std::vector<GLfloat> positions =
     {
-        initialX - ballSize, initialY - ballSize,
-        initialX + ballSize, initialY - ballSize,
-        initialX + ballSize, initialY + ballSize,
-        initialX - ballSize, initialY + ballSize
+        initialX - sideLength / 2, initialY - sideLength / 2,
+        initialX + sideLength / 2, initialY - sideLength / 2,
+        initialX + sideLength / 2, initialY + sideLength / 2,
+        initialX - sideLength / 2, initialY + sideLength / 2
     };
 
     std::vector<GLuint> indices =
@@ -347,7 +424,13 @@ void initializeBall()
     std::vector<GLuint> collisionBox({0,1,2,3});
     std::vector<GLfloat> color({1.0f,1.0f,1.0f,1.0f});
 
-    ball = new Ball(positions, indices, collisionBox, color);
+    std::uniform_real_distribution<float> initialVelocityDistributionX(-1.0f, 1.0f);
+    std::uniform_real_distribution<float> initialVelocityDistributionY(-0.7f, -1.0f);
+    glm::vec2 initialVelocity(initialVelocityDistributionX(eng), initialVelocityDistributionY(eng));
+    //glm::vec2 initialVelocity(0.5f,-1.0f);
+    glm::vec2 initialCenter(initialX, initialY);
+    GLfloat initialSpeed = 1.0f;
+    ball = new Ball(positions, indices, color, initialVelocity, initialCenter, initialSpeed, sideLength);
 }
 
 //This is the dumbest code I've ever written

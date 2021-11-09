@@ -1,12 +1,14 @@
 #include "Paddle.h"
 #include <iostream>
+#include <utility>
 
-Paddle::Paddle(std::vector<GLfloat> data, GLuint dataSize, std::vector<GLuint> indices, GLuint numberOfIndices,
-               std::vector<GLuint> collisionBoxIndices, std::vector<GLfloat> color, GLuint paddleSize)
-               :m_data(std::move(data)), m_dataSize(dataSize), m_indices(std::move(indices)),
-               m_numberOfIndices(numberOfIndices), m_color(std::move(color)),
-               m_paddleSize(paddleSize), m_offset(0.0f)
+Paddle::Paddle(std::vector<GLfloat> data, GLuint dataSize,std::vector<GLuint> indices, GLuint numberOfIndices,
+               std::vector<GLfloat> color, GLfloat paddleWidth, GLfloat paddleHeight, glm::vec2 center)
+               : m_data(std::move(data)), m_dataSize(dataSize), m_indices(std::move(indices)),
+                 m_numberOfIndices(numberOfIndices), m_color(std::move(color)),
+                 m_paddleWidth(paddleWidth), m_offset(0.0f), m_paddleHeight(paddleHeight), m_center(center)
 {
+    m_origin = m_data;
     m_vertexArray = new VertexArray();
     m_vertexBuffer = new VertexBuffer(m_data.data(), m_dataSize);
     VertexBufferLayout frameVertexBufferLayout;
@@ -16,13 +18,21 @@ Paddle::Paddle(std::vector<GLfloat> data, GLuint dataSize, std::vector<GLuint> i
     m_vertexBuffer->unbind();
     m_vertexArray->unbind();
     m_indexBuffer->unbind();
-
-    m_collisionBox = m_data;
 }
 
 std::vector<GLfloat> Paddle::getCollisionBox() const
 {
-    return m_collisionBox;
+    std::vector<GLfloat> collisionBox;
+    collisionBox.push_back(m_center.x - m_paddleWidth / 2);
+    collisionBox.push_back(m_center.y);
+    collisionBox.push_back(m_center.x + m_paddleWidth / 2);
+    collisionBox.push_back(m_center.y);
+    collisionBox.push_back(m_center.x + m_paddleWidth / 2);
+    collisionBox.push_back(m_center.y + m_paddleHeight / 2);
+    collisionBox.push_back(m_center.x - m_paddleWidth / 2);
+    collisionBox.push_back(m_center.y + m_paddleHeight / 2);
+
+    return collisionBox;
 }
 
 VertexArray *Paddle::getVertexArray() const
@@ -48,30 +58,31 @@ GLfloat Paddle::getOffset() const
 void Paddle::addToOffset(GLfloat addition)
 {
     m_offset += addition;
+    m_center.x += addition;
 
-    m_collisionBox.at(0) += addition;
-    m_collisionBox.at(2) += addition;
-    m_collisionBox.at(4) += addition;
-    m_collisionBox.at(6) += addition;
+    m_origin.at(0) += addition;
+    m_origin.at(2) += addition;
+    m_origin.at(4) += addition;
+    m_origin.at(6) += addition;
 
-    if(m_collisionBox.at(0) < 20.0f)
+    if(m_origin.at(0) < 20.0f)
     {
-        m_collisionBox.at(0) = 20.0f;
-        m_collisionBox.at(2) = 20.0f + m_paddleSize;
-        m_collisionBox.at(4) = 20.0f + m_paddleSize;
-        m_collisionBox.at(6) = 20.0f;
+        m_origin.at(0) = 20.0f;
+        m_origin.at(2) = 20.0f + m_paddleWidth;
+        m_origin.at(4) = 20.0f + m_paddleWidth;
+        m_origin.at(6) = 20.0f;
 
         m_offset = 0.0f;
 
         resetPaddleBuffer();
     }
 
-    if(m_collisionBox.at(2) > 748.0f)
+    if(m_origin.at(2) > 748.0f)
     {
-        m_collisionBox.at(0) = 748.0f - m_paddleSize;
-        m_collisionBox.at(2) = 748.0f;
-        m_collisionBox.at(4) = 748.0f;
-        m_collisionBox.at(6) = 748.0f - m_paddleSize;
+        m_origin.at(0) = 748.0f - m_paddleWidth;
+        m_origin.at(2) = 748.0f;
+        m_origin.at(4) = 748.0f;
+        m_origin.at(6) = 748.0f - m_paddleWidth;
 
         m_offset = 0.0f;
 
@@ -82,10 +93,20 @@ void Paddle::addToOffset(GLfloat addition)
 void Paddle::resetPaddleBuffer()
 {
     m_vertexArray->bind();
-    m_vertexBuffer = new VertexBuffer(m_collisionBox.data(), m_collisionBox.size() * sizeof(GLfloat));
+    m_vertexBuffer = new VertexBuffer(m_origin.data(), m_origin.size() * sizeof(GLfloat));
     VertexBufferLayout frameVertexBufferLayout;
     frameVertexBufferLayout.push<GLfloat>(2);
     m_vertexArray->addBuffer(*m_vertexBuffer, frameVertexBufferLayout);
     m_indexBuffer->bind();
+}
+
+GLfloat Paddle::getWidth() const
+{
+    return m_paddleWidth;
+}
+
+GLfloat Paddle::getHeight() const
+{
+    return m_paddleHeight;
 }
 

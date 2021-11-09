@@ -40,6 +40,8 @@ void initializePaddle();
 void initializeBricks();
 void initializeBall();
 void update();
+void checkForCollisions();
+//GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther);
 void render();
 BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vector<GLuint> originBrickIndices, std::vector<GLfloat> color);
 
