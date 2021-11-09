@@ -21,7 +21,32 @@ BrickGroup::BrickGroup(std::vector<Brick> bricks, std::vector<GLuint> brickLayou
 
 void BrickGroup::kill(GLuint id)
 {
+    for(Brick brick : m_bricks)
+    {
+        if(brick.getID() == id && brick.isAlive())
+        {
+            brick.kill();
+        }
+    }
 
+    resetBuffer();
+}
+
+void BrickGroup::resetBuffer()
+{
+    m_data.clear();
+    for(const Brick& brick : m_bricks)
+    {
+        if(brick.isAlive())
+            m_data.insert(m_data.end(), brick.getPositions().begin(), brick.getPositions().end());
+    }
+
+    m_vertexArray->bind();
+    m_vertexBuffer = new VertexBuffer(m_data.data(), m_data.size() * sizeof(GLfloat));
+    VertexBufferLayout frameVertexBufferLayout;
+    frameVertexBufferLayout.push<GLfloat>(2);
+    m_vertexArray->addBuffer(*m_vertexBuffer, frameVertexBufferLayout);
+    m_indexBuffer->bind();
 }
 
 std::vector<Brick> BrickGroup::getBricks() const

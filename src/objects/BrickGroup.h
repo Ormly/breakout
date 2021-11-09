@@ -27,6 +27,7 @@ public:
     VertexArray* getVertexArray() const;
     IndexBuffer* getIndexBuffer() const;
     GLboolean isPenetrated() const;
+    void resetBuffer();
 };
 
 

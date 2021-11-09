@@ -238,6 +238,7 @@ void checkForCollisions()
                 changedVelocity.x = ball->getVelocity().x;
                 changedVelocity.y = -ball->getVelocity().y;
                 ball->setVelocity(changedVelocity);
+                brickGroup->kill(brick.getID());
             }
         }
     }
@@ -245,6 +246,7 @@ void checkForCollisions()
 
 GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther, GLfloat ballSize,GLfloat otherWidth, GLfloat otherHeight)
 {
+    /*
     GLfloat ballOriginX = collisionBoxBall.at(6);
     GLfloat ballOriginY = collisionBoxBall.at(7);
     GLfloat otherOriginX = collisionBoxOther.at(6);
@@ -259,6 +261,27 @@ GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfl
     }
     else
         return GL_FALSE;
+        */
+
+    GLfloat ballLeftX = collisionBoxBall.at(0);
+    GLfloat ballRightX = collisionBoxBall.at(2);
+    GLfloat ballTopY = collisionBoxBall.at(5);
+    GLfloat ballBottomY = collisionBoxBall.at(1);
+
+    GLfloat otherLeftX = collisionBoxOther.at(0);
+    GLfloat otherRightX = collisionBoxOther.at(2);
+    GLfloat otherTopY = collisionBoxOther.at(5);
+    GLfloat otherBottomY = collisionBoxOther.at(1);
+
+    if((ballLeftX < otherRightX && ballRightX > otherLeftX) &&
+       (ballTopY > otherBottomY && ballBottomY < otherTopY))
+    {
+        return GL_TRUE;
+    }
+    else
+    {
+        return GL_FALSE;
+    }
 }
 
 void render()
@@ -538,7 +561,7 @@ void initializeBall()
     std::vector<GLfloat> color({1.0f,1.0f,1.0f,1.0f});
 
     std::uniform_real_distribution<float> initialVelocityDistributionX(-1.0f, 1.0f);
-    std::uniform_real_distribution<float> initialVelocityDistributionY(0.7f, 1.0f);
+    std::uniform_real_distribution<float> initialVelocityDistributionY(-0.7f, -1.0f);
     glm::vec2 initialVelocity(initialVelocityDistributionX(eng), initialVelocityDistributionY(eng));
     //glm::vec2 initialVelocity(0.5f,-1.0f);
     glm::vec2 initialCenter(initialX, initialY);
