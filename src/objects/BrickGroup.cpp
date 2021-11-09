@@ -2,11 +2,11 @@
 
 #include <utility>
 
-BrickGroup::BrickGroup(std::vector<Brick> bricks, std::vector<GLuint> brickLayout, std::vector<GLfloat> color)
+BrickGroup::BrickGroup(std::vector<Brick*> bricks, std::vector<GLuint> brickLayout, std::vector<GLfloat> color)
 :m_bricks(std::move(bricks)), m_indices(std::move(brickLayout)), m_color(std::move(color)), m_penetrated(GL_FALSE)
 {
-    for(const Brick& brick : m_bricks)
-        m_data.insert(m_data.end(), brick.getPositions().begin(), brick.getPositions().end());
+    for(const Brick *brick : m_bricks)
+        m_data.insert(m_data.end(), brick->getPositions().begin(), brick->getPositions().end());
 
     m_vertexArray = new VertexArray();
     m_vertexBuffer = new VertexBuffer(m_data.data(), m_data.size() * sizeof(GLfloat));
@@ -21,11 +21,11 @@ BrickGroup::BrickGroup(std::vector<Brick> bricks, std::vector<GLuint> brickLayou
 
 void BrickGroup::kill(GLuint id)
 {
-    for(Brick brick : m_bricks)
+    for(Brick* brick : m_bricks)
     {
-        if(brick.getID() == id && brick.isAlive())
+        if(brick->getID() == id && brick->isAlive())
         {
-            brick.kill();
+            brick->kill();
         }
     }
 
@@ -35,10 +35,10 @@ void BrickGroup::kill(GLuint id)
 void BrickGroup::resetBuffer()
 {
     m_data.clear();
-    for(const Brick& brick : m_bricks)
+    for(const Brick* brick : m_bricks)
     {
-        if(brick.isAlive())
-            m_data.insert(m_data.end(), brick.getPositions().begin(), brick.getPositions().end());
+        if(brick->isAlive())
+            m_data.insert(m_data.end(), brick->getPositions().begin(), brick->getPositions().end());
     }
 
     m_vertexArray->bind();
@@ -49,7 +49,7 @@ void BrickGroup::resetBuffer()
     m_indexBuffer->bind();
 }
 
-std::vector<Brick> BrickGroup::getBricks() const
+std::vector<Brick*> BrickGroup::getBricks() const
 {
     return m_bricks;
 }

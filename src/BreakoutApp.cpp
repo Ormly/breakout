@@ -228,17 +228,17 @@ void checkForCollisions()
     //brick collision
     for(BrickGroup *brickGroup : brickGroups)
     {
-        for(const Brick& brick : brickGroup->getBricks())
+        for(const Brick* brick : brickGroup->getBricks())
         {
-            std::vector<GLfloat> box = brick.getCollisionBox();
-            GLfloat height = brick.getHeight();
-            GLfloat width = brick.getWidth();
+            std::vector<GLfloat> box = brick->getCollisionBox();
+            GLfloat height = brick->getHeight();
+            GLfloat width = brick->getWidth();
             if(areOverlapping(collisionBoxBall, box, ballSize, width, height))
             {
                 changedVelocity.x = ball->getVelocity().x;
                 changedVelocity.y = -ball->getVelocity().y;
                 ball->setVelocity(changedVelocity);
-                brickGroup->kill(brick.getID());
+                brickGroup->kill(brick->getID());
             }
         }
     }
@@ -572,7 +572,7 @@ void initializeBall()
 //This is the dumbest code I've ever written
 BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vector<GLuint> originBrickIndices, std::vector<GLfloat> color)
 {
-    std::vector<Brick> bricks;
+    std::vector<Brick*> bricks;
     std::vector<GLuint> brickLayout;
     GLuint id = 0;
 
@@ -582,7 +582,7 @@ BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vec
 
     auto* originBrick = new Brick(originBrickPositions, id++,
                                   originBrickPositions.at(5) - originBrickPositions.at(3), originBrickPositions.at(2) - originBrickPositions.at(0) ,originBrickCenter);
-    bricks.push_back(*originBrick);
+    bricks.push_back(originBrick);
     brickLayout.insert(brickLayout.end(), originBrickIndices.begin(), originBrickIndices.end());
 
     std::vector<GLfloat> previousBrickPositions;
@@ -607,8 +607,8 @@ BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vec
             GLfloat previousBrickCenterX = (previousBrickPositions.at(6) + previousBrickPositions.at(2)) / 2;
             GLfloat previousBrickCenterY = (previousBrickPositions.at(7) + previousBrickPositions.at(3)) / 2;
             glm::vec2 previousBrickCenter(previousBrickCenterX, previousBrickCenterY);
-            bricks.push_back(*(new Brick(previousBrickPositions, id++,
-                                         previousBrickPositions.at(5) - previousBrickPositions.at(3),previousBrickPositions.at(2) - previousBrickPositions.at(0) ,previousBrickCenter)));
+            bricks.push_back(new Brick(previousBrickPositions, id++,
+                                         previousBrickPositions.at(5) - previousBrickPositions.at(3),previousBrickPositions.at(2) - previousBrickPositions.at(0) ,previousBrickCenter));
 
             brickToAddIndices.clear();
             for(unsigned int layerZeroOriginBrickIndex : originBrickIndices)
@@ -645,7 +645,7 @@ BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vec
             glm::vec2 brickToAddCenter(brickToAddXCenter, brickToAddYCenter);
             brickToAdd = new Brick(brickToAddPositions, id++,
                                    brickToAddPositions.at(5) - brickToAddPositions.at(3),brickToAddPositions.at(2) - brickToAddPositions.at(0) ,brickToAddCenter);
-            bricks.push_back(*brickToAdd);
+            bricks.push_back(brickToAdd);
             brickLayout.insert(brickLayout.end(), brickToAddIndices.begin(), brickToAddIndices.end());
 
             previousBrickPositions = brickToAddPositions;

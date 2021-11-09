@@ -15,14 +15,14 @@ private:
     VertexArray* m_vertexArray;
     VertexBuffer* m_vertexBuffer;
     IndexBuffer* m_indexBuffer;
-    std::vector<Brick> m_bricks;
+    std::vector<Brick*> m_bricks;
     std::vector<GLfloat> m_color;
     GLboolean m_penetrated;
     //std::vector<GLuint> m_brickLayout;
 public:
-    BrickGroup(std::vector<Brick> bricks, std::vector<GLuint> brickLayout, std::vector<GLfloat> color);
+    BrickGroup(std::vector<Brick*> bricks, std::vector<GLuint> brickLayout, std::vector<GLfloat> color);
     void kill(GLuint id);
-    std::vector<Brick> getBricks() const;
+    std::vector<Brick*> getBricks() const;
     std::vector<GLfloat> getColor() const;
     VertexArray* getVertexArray() const;
     IndexBuffer* getIndexBuffer() const;
