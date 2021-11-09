@@ -173,9 +173,29 @@ void checkForCollisions()
         ballOriginY + ballSideLength >= paddleOriginY &&
         ballOriginY <= paddleOriginY + paddleHeight)
     {
-        changedVelocity.x = ball->getVelocity().x;
-        changedVelocity.y = -ball->getVelocity().y;
-        ball->setVelocity(changedVelocity);
+        GLfloat radius = ball->getSideLength() / 2;
+        GLfloat ballLocation = ball->getCenter().x - (paddle->getCenter().x - radius - paddle->getWidth() / 2);
+        GLfloat paddleEdge = ballLocation / paddle->getWidth();
+
+        if(paddleEdge < 0.33f)
+        {
+            changedVelocity.x = -0.196f;
+            changedVelocity.y = -0.981f;
+        }
+        else if(paddleEdge > 0.66)
+        {
+            changedVelocity.x = 0.196f;
+            changedVelocity.y = -0.981f;
+        }
+        else
+        {
+            changedVelocity.x = ball->getVelocity().x;
+            changedVelocity.y = -ball->getVelocity().y;
+        }
+
+        ball->setVelocity(glm::reflect(ball->getVelocity(), changedVelocity));
+
+        //ball->setVelocity(changedVelocity);
     }
 }
 

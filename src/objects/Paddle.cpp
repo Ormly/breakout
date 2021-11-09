@@ -110,3 +110,8 @@ GLfloat Paddle::getHeight() const
     return m_paddleHeight;
 }
 
+glm::vec2 Paddle::getCenter() const
+{
+    return m_center;
+}
+

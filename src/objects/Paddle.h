@@ -27,6 +27,7 @@ public:
     Paddle(std::vector<GLfloat> data, GLuint dataSize, std::vector<GLuint> indices, GLuint numberOfIndices, std::vector<GLfloat> color, GLfloat paddleWidth, GLfloat paddleHeight, glm::vec2 center);
     std::vector<GLfloat> getCollisionBox() const;
     std::vector<GLfloat> getColor() const;
+    glm::vec2 getCenter() const;
     VertexArray* getVertexArray() const;
     IndexBuffer* getIndexBuffer() const;
     void addToOffset(GLfloat addition);
