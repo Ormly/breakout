@@ -580,8 +580,8 @@ BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vec
     GLfloat yCenter = (originBrickPositions.at(7) + originBrickPositions.at(3)) / 2;
     glm::vec2 originBrickCenter(xCenter, yCenter);
 
-    auto* originBrick = new Brick(originBrickPositions, id++, originBrickPositions.at(2) - originBrickPositions.at(0),
-                                  originBrickPositions.at(5) - originBrickPositions.at(3), originBrickCenter);
+    auto* originBrick = new Brick(originBrickPositions, id++,
+                                  originBrickPositions.at(5) - originBrickPositions.at(3), originBrickPositions.at(2) - originBrickPositions.at(0) ,originBrickCenter);
     bricks.push_back(*originBrick);
     brickLayout.insert(brickLayout.end(), originBrickIndices.begin(), originBrickIndices.end());
 
@@ -607,8 +607,8 @@ BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vec
             GLfloat previousBrickCenterX = (previousBrickPositions.at(6) + previousBrickPositions.at(2)) / 2;
             GLfloat previousBrickCenterY = (previousBrickPositions.at(7) + previousBrickPositions.at(3)) / 2;
             glm::vec2 previousBrickCenter(previousBrickCenterX, previousBrickCenterY);
-            bricks.push_back(*(new Brick(previousBrickPositions, id++,previousBrickPositions.at(2) - previousBrickPositions.at(0),
-                                         previousBrickPositions.at(5) - previousBrickPositions.at(3) ,previousBrickCenter)));
+            bricks.push_back(*(new Brick(previousBrickPositions, id++,
+                                         previousBrickPositions.at(5) - previousBrickPositions.at(3),previousBrickPositions.at(2) - previousBrickPositions.at(0) ,previousBrickCenter)));
 
             brickToAddIndices.clear();
             for(unsigned int layerZeroOriginBrickIndex : originBrickIndices)
@@ -643,8 +643,8 @@ BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vec
             GLfloat brickToAddXCenter = (brickToAddPositions.at(6) + brickToAddPositions.at(2)) / 2;
             GLfloat brickToAddYCenter = (brickToAddPositions.at(7) + brickToAddPositions.at(3)) / 2;
             glm::vec2 brickToAddCenter(brickToAddXCenter, brickToAddYCenter);
-            brickToAdd = new Brick(brickToAddPositions, id++,brickToAddPositions.at(2) - brickToAddPositions.at(0),
-                                   brickToAddPositions.at(5) - brickToAddPositions.at(3) ,brickToAddCenter);
+            brickToAdd = new Brick(brickToAddPositions, id++,
+                                   brickToAddPositions.at(5) - brickToAddPositions.at(3),brickToAddPositions.at(2) - brickToAddPositions.at(0) ,brickToAddCenter);
             bricks.push_back(*brickToAdd);
             brickLayout.insert(brickLayout.end(), brickToAddIndices.begin(), brickToAddIndices.end());
 
