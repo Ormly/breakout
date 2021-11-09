@@ -159,19 +159,24 @@ void checkForCollisions()
 {
     glm::vec2 changedVelocity;
 
-    //ball-paddle
-    GLfloat ballOriginX = ball->getCollisionBox().at(6);
-    GLfloat ballOriginY = ball->getCollisionBox().at(7);
-    GLfloat ballSideLength = ball->getSideLength();
-    GLfloat paddleOriginX = paddle->getCollisionBox().at(6);
-    GLfloat paddleOriginY = paddle->getCollisionBox().at(7);
+    std::vector<GLfloat> collisionBoxBall = ball->getCollisionBox();
+    std::vector<GLfloat> collisionBoxPaddle = paddle->getCollisionBox();
+    std::vector<GLfloat> collisionBoxFrameLeft = frame->getCollisionBoxLeft();
+    std::vector<GLfloat> collisionBoxFrameRight = frame->getCollisionBoxRight();
+    std::vector<GLfloat> collisionBoxFrameTop = frame->getCollisionBoxTop();
+
+    GLfloat ballSize = ball->getSideLength();
     GLfloat paddleWidth = paddle->getWidth();
     GLfloat paddleHeight = paddle->getHeight();
+    GLfloat frameLeftHeight = frame->getLeftHeight();
+    GLfloat frameRightHeight = frame->getRightHeight();
+    GLfloat frameTopHeight = frame->getTopHeight();
+    GLfloat frameLeftWidth = frame->getLeftWidth();
+    GLfloat frameRightWidth = frame->getRightWidth();
+    GLfloat frameTopWidth = frame->getTopWidth();
 
-    if (ballOriginX + ballSideLength >= paddleOriginX &&
-        ballOriginX <= paddleOriginX + paddleWidth &&
-        ballOriginY + ballSideLength >= paddleOriginY &&
-        ballOriginY <= paddleOriginY + paddleHeight)
+
+    if (areOverlapping(collisionBoxBall, collisionBoxPaddle, ballSize, paddleWidth, paddleHeight))
     {
         GLfloat radius = ball->getSideLength() / 2;
         GLfloat ballLocation = ball->getCenter().x - (paddle->getCenter().x - radius - paddle->getWidth() / 2);
@@ -181,22 +186,71 @@ void checkForCollisions()
         {
             changedVelocity.x = -0.196f;
             changedVelocity.y = -0.981f;
+            ball->setVelocity(glm::reflect(ball->getVelocity(), changedVelocity));
         }
         else if(paddleEdge > 0.66)
         {
             changedVelocity.x = 0.196f;
             changedVelocity.y = -0.981f;
+            ball->setVelocity(glm::reflect(ball->getVelocity(), changedVelocity));
         }
         else
         {
             changedVelocity.x = ball->getVelocity().x;
             changedVelocity.y = -ball->getVelocity().y;
+            ball->setVelocity(changedVelocity);
         }
-
-        ball->setVelocity(glm::reflect(ball->getVelocity(), changedVelocity));
-
-        //ball->setVelocity(changedVelocity);
     }
+
+    if(areOverlapping(collisionBoxBall, collisionBoxFrameLeft, ballSize, frameLeftWidth, frameLeftHeight))
+    {
+        changedVelocity.x = -ball->getVelocity().x;
+        changedVelocity.y = ball->getVelocity().y;
+        ball->setVelocity(changedVelocity);
+    }
+
+    if(areOverlapping(collisionBoxBall, collisionBoxFrameRight, ballSize, frameRightWidth, frameRightHeight))
+    {
+        changedVelocity.x = -ball->getVelocity().x;
+        changedVelocity.y = ball->getVelocity().y;
+        ball->setVelocity(changedVelocity);
+    }
+
+    if(areOverlapping(collisionBoxBall, collisionBoxFrameTop, ballSize, frameTopWidth, frameTopHeight))
+    {
+        changedVelocity.x = ball->getVelocity().x;
+        changedVelocity.y = -ball->getVelocity().y;
+        ball->setVelocity(changedVelocity);
+    }
+}
+
+GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther, GLfloat ballSize,GLfloat otherWidth, GLfloat otherHeight)
+{
+    GLfloat ballOriginX = collisionBoxBall.at(6);
+    GLfloat ballOriginY = collisionBoxBall.at(7);
+    GLfloat otherOriginX = collisionBoxOther.at(6);
+    GLfloat otherOriginY = collisionBoxOther.at(7);
+
+    if(ballOriginX < otherOriginX + otherWidth &&
+       ballOriginX + ballSize > otherOriginX &&
+       ballOriginY < otherOriginY + otherHeight &&
+       ballSize + ballOriginY > otherOriginY)
+    {
+        return GL_TRUE;
+    }
+    else
+        return GL_FALSE;
+    /*
+    if (ballOriginX + ballSize >= otherOriginX &&
+        ballOriginX <= otherOriginX + otherWidth &&
+        ballOriginY + ballSize >= otherOriginY &&
+        ballOriginY <= otherOriginY + otherHeight)
+    {
+        return GL_TRUE;
+    }
+    else
+        return GL_FALSE;
+        */
 }
 
 void render()
@@ -313,9 +367,40 @@ void initializeFrame()
     frameCollisionBoxes.push_back(frameCollisionBoxFirst);
     frameCollisionBoxes.push_back(frameCollisionBoxSecond);
     frameCollisionBoxes.push_back(frameCollisionBoxThird);
-
     std::vector<GLfloat> frameColor({0.823f,0.823f,0.823f,1.0f});
-    frame = new Frame(frameData, frameData.size() * sizeof(GLfloat), frameIndices, frameIndices.size(), frameCollisionBoxes, frameColor);
+
+    std::vector<GLfloat> widths;
+    widths.push_back(frameData.at(2) - frameData.at(0));
+    widths.push_back(frameData.at(6) - frameData.at(4));
+    widths.push_back(frameData.at(8) - frameData.at(18));
+
+    std::vector<GLfloat> heights;
+    heights.push_back(frameData.at(17) - frameData.at(1));
+    heights.push_back(frameData.at(13) - frameData.at(5));
+    heights.push_back(frameData.at(11) - frameData.at(9));
+
+
+    /*
+    GLfloat xCenter = (paddleData.at(6) + paddleData.at(2)) / 2;
+    GLfloat yCenter = (paddleData.at(7) + paddleData.at(3)) / 2;
+    glm::vec2 paddleCenter(xCenter, yCenter);
+     */
+
+    std::vector<glm::vec2> centers;
+    GLfloat leftXCenter = (frameData.at(16) + frameData.at(2)) / 2;
+    GLfloat leftYCenter = (frameData.at(17) + frameData.at(3)) / 2;
+    glm::vec2 leftCenter(leftXCenter, leftYCenter);
+    centers.push_back(leftCenter);
+    GLfloat rightXCenter = (frameData.at(12) + frameData.at(6)) / 2;
+    GLfloat rightYCenter = (frameData.at(13) + frameData.at(7)) / 2;
+    glm::vec2 rightCenter(rightXCenter, rightYCenter);
+    centers.push_back(rightCenter);
+    GLfloat topXCenter = (frameData.at(16) + frameData.at(8)) / 2;
+    GLfloat topYCenter = (frameData.at(17) + frameData.at(9)) / 2;
+    glm::vec2 topCenter(topXCenter, topYCenter);
+    centers.push_back(topCenter);
+
+    frame = new Frame(frameData, frameData.size() * sizeof(GLfloat), frameIndices, frameIndices.size(), frameCollisionBoxes, frameColor, widths, heights, centers);
 }
 
 void initializePaddle()
@@ -449,7 +534,7 @@ void initializeBall()
     glm::vec2 initialVelocity(initialVelocityDistributionX(eng), initialVelocityDistributionY(eng));
     //glm::vec2 initialVelocity(0.5f,-1.0f);
     glm::vec2 initialCenter(initialX, initialY);
-    GLfloat initialSpeed = 1.0f;
+    GLfloat initialSpeed = 1.05f;
     ball = new Ball(positions, indices, color, initialVelocity, initialCenter, initialSpeed, sideLength);
 }
 
