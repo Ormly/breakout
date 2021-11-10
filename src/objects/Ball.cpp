@@ -5,8 +5,8 @@
 Ball::Ball(std::vector<GLfloat> positions,std::vector<GLuint> indices, std::vector<GLfloat> color, glm::vec2 initialVelocity, glm::vec2 initialCenter, GLfloat initialSpeed, GLfloat sideLength)
 :m_positions(std::move(positions)), m_indices(std::move(indices)), m_color(std::move(color)), m_center(initialCenter), m_speed(initialSpeed), m_sideLength(sideLength)
 {
-    m_velocity.x = initialVelocity.x * initialSpeed;
-    m_velocity.y = initialVelocity.y * initialSpeed;
+    m_velocity.x = initialVelocity.x + initialSpeed;
+    m_velocity.y = initialVelocity.y + initialSpeed;
     m_offset.x = 0;
     m_offset.y = 0;
 
@@ -53,8 +53,8 @@ std::vector<GLfloat> Ball::getPositions() const
 
 void Ball::setVelocity(glm::vec2 velocity)
 {
-    m_velocity.x = velocity.x * m_speed;
-    m_velocity.y = velocity.y * m_speed;
+    m_velocity.x = velocity.x;
+    m_velocity.y = velocity.y;
 }
 
 VertexArray *Ball::getVertexArray() const
@@ -99,4 +99,11 @@ glm::vec2 Ball::getCenter() const
 GLfloat Ball::getSideLength() const
 {
     return m_sideLength;
+}
+
+void Ball::addToSpeed(GLfloat addition)
+{
+    m_speed += addition;
+    m_velocity.x += addition;
+    m_velocity.y += addition;
 }

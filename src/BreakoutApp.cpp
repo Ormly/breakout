@@ -94,60 +94,19 @@ void update()
 
     if(glfwGetKey(window, GLFW_KEY_RIGHT) || glfwGetKey(window, GLFW_KEY_D))
     {
-        //paddle->translate(10.0f * deltaTime);
         paddle->addToOffset(paddleSpeed * deltaTime);
         paddleTranslation = glm::translate(identity, glm::vec3(paddle->getOffset(),0.0f,0.0f));
     }
 
     if(glfwGetKey(window, GLFW_KEY_LEFT) || glfwGetKey(window, GLFW_KEY_A))
     {
-        //paddle->translate(-10.0f * deltaTime);
         paddle->addToOffset(paddleSpeed * deltaTime * -1.0f);
         paddleTranslation = glm::translate(identity, glm::vec3(paddle->getOffset(),0.0f,0.0f));
     }
 
-    //ball step
-    GLfloat centerX = ball->getCenter().x;
-    GLfloat centerY = ball->getCenter().y;
-    //GLfloat velocityX = centerX + ball->getVelocity().x;
-    //GLfloat velocityY = centerY + ball->getVelocity().y;
-    GLfloat additionX = 0;
-    GLfloat additionY = 0;
-
-    /*
-    if(velocityX < 0 && velocityY < 0)
-    {
-        additionX += centerX - velocityX;
-        additionY += centerY - velocityY;
-    }
-    if(velocityX > 0 && velocityY < 0)
-    {
-        additionX += velocityX - centerX;
-        additionY += centerY - velocityY;
-    }
-    if(velocityX > 0 && velocityY > 0)
-    {
-        additionX += velocityX - centerX;
-        additionY += velocityY - centerY;
-    }
-    if(velocityX < 0 && velocityY > 0)
-    {
-        additionX += centerX - velocityX;
-        additionY += velocityY - centerY;
-    }
-     */
-
-    //ball->addToOffset(additionX, additionY);
     ball->addToOffset(ball->getVelocity().x * deltaTime, ball->getVelocity().y * deltaTime);
     ballTranslation = glm::translate(identity, glm::vec3(ball->getOffset().x, ball->getOffset().y, 0.0f));
 
-    /*
-    std::cout << "Ball position x0/y0: " << ball->getPositions().at(0) << "/" << ball->getPositions().at(1) << "\n" <<
-                 "Ball position x1/y1: " << ball->getPositions().at(2) << "/" << ball->getPositions().at(3) << "\n" <<
-                 "Ball position x2/y2: " << ball->getPositions().at(4) << "/" << ball->getPositions().at(5) << "\n" <<
-                 "Ball position x3/y3: " << ball->getPositions().at(6) << "/" << ball->getPositions().at(7) << "\n" <<
-    std::endl;
-     */
     std::cout << "Ball velocity x:" << ball->getVelocity().x << " | y: " << ball->getVelocity().y << std::endl;
     std::cout << "Ball addition (velocity * deltaTime) x:" << ball->getVelocity().x * deltaTime << " | y: " << ball->getVelocity().y * deltaTime << std::endl;
     std::cout << "Ball offset x:" << ball->getOffset().x << " | y: " << ball->getOffset().y << std::endl;
@@ -246,23 +205,6 @@ void checkForCollisions()
 
 GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther, GLfloat ballSize,GLfloat otherWidth, GLfloat otherHeight)
 {
-    /*
-    GLfloat ballOriginX = collisionBoxBall.at(6);
-    GLfloat ballOriginY = collisionBoxBall.at(7);
-    GLfloat otherOriginX = collisionBoxOther.at(6);
-    GLfloat otherOriginY = collisionBoxOther.at(7);
-
-    if(ballOriginX < otherOriginX + otherWidth &&
-       ballOriginX + ballSize > otherOriginX &&
-       ballOriginY < otherOriginY + otherHeight &&
-       ballSize + ballOriginY > otherOriginY)
-    {
-        return GL_TRUE;
-    }
-    else
-        return GL_FALSE;
-        */
-
     GLfloat ballLeftX = collisionBoxBall.at(0);
     GLfloat ballRightX = collisionBoxBall.at(2);
     GLfloat ballTopY = collisionBoxBall.at(5);
@@ -560,12 +502,12 @@ void initializeBall()
     std::vector<GLuint> collisionBox({0,1,2,3});
     std::vector<GLfloat> color({1.0f,1.0f,1.0f,1.0f});
 
-    std::uniform_real_distribution<float> initialVelocityDistributionX(-1.0f, 1.0f);
-    std::uniform_real_distribution<float> initialVelocityDistributionY(-0.7f, -1.0f);
+    std::uniform_real_distribution<float> initialVelocityDistributionX(-0.1f, 0.1f);
+    std::uniform_real_distribution<float> initialVelocityDistributionY(-0.9f, -1.0f);
     glm::vec2 initialVelocity(initialVelocityDistributionX(eng), initialVelocityDistributionY(eng));
     //glm::vec2 initialVelocity(0.5f,-1.0f);
     glm::vec2 initialCenter(initialX, initialY);
-    GLfloat initialSpeed = 1.05f;
+    GLfloat initialSpeed = 5.0f;
     ball = new Ball(positions, indices, color, initialVelocity, initialCenter, initialSpeed, sideLength);
 }
 

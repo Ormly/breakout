@@ -36,6 +36,7 @@ public:
     glm::vec2 getCenter() const;
     GLfloat getSideLength() const;
     std::vector<GLfloat> getCollisionBox() const;
+    void addToSpeed(GLfloat addition);
 };
 
 
