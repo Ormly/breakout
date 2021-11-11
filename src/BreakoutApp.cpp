@@ -49,6 +49,8 @@ int main()
     deltaTime = 0;
     int numberOfFrames = 0;
     numberOfUpdates = 0;
+    collisionWaitTime = 5;
+    collisionWaitTimer = collisionWaitTime;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -205,9 +207,6 @@ void checkForCollisions()
 
 GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther, GLfloat ballSize,GLfloat otherWidth, GLfloat otherHeight)
 {
-    if(numberOfUpdates * limitFPS == 0.5 || numberOfUpdates * limitFPS == 1.0)
-        return GL_FALSE;
-
     GLfloat ballLeftX = collisionBoxBall.at(0);
     GLfloat ballRightX = collisionBoxBall.at(2);
     GLfloat ballTopY = collisionBoxBall.at(5);
@@ -219,12 +218,20 @@ GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfl
     GLfloat otherBottomY = collisionBoxOther.at(1);
 
     if((ballLeftX < otherRightX && ballRightX > otherLeftX) &&
-       (ballTopY > otherBottomY && ballBottomY < otherTopY))
+       (ballTopY > otherBottomY && ballBottomY < otherTopY) &&
+       collisionWaitTimer == collisionWaitTime)
     {
+        collisionWaitTimer--;
         return GL_TRUE;
     }
     else
     {
+        if(collisionWaitTimer < collisionWaitTime)
+            collisionWaitTimer--;
+
+        if(collisionWaitTimer < 0)
+            collisionWaitTimer = collisionWaitTime;
+
         return GL_FALSE;
     }
 }

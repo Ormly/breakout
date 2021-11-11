@@ -35,6 +35,8 @@ GLuint numberOfBrickGroups;
 
 GLuint numberOfUpdates;
 GLdouble limitFPS;
+GLint collisionWaitTimer;
+GLint collisionWaitTime;
 
 GLboolean initializeWindow();
 void initializeGameObjects();
