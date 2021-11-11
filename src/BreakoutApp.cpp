@@ -43,12 +43,12 @@ int main()
     shaders->setUniformMat4f("u_translation", identity);
     //shaders.unbind();
 
-    static double limitFPS = 1.0 / 60.0;
+    limitFPS = 1.0 / 60.0;
     double previousTime = glfwGetTime();
     double timer = previousTime;
     deltaTime = 0;
     int numberOfFrames = 0;
-    int numberOfUpdates = 0;
+    numberOfUpdates = 0;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -185,14 +185,14 @@ void checkForCollisions()
     }
 
     //brick collision
-    for(BrickGroup *brickGroup : brickGroups)
+    for(BrickGroup* brickGroup : brickGroups)
     {
         for(const Brick* brick : brickGroup->getBricks())
         {
             std::vector<GLfloat> box = brick->getCollisionBox();
             GLfloat height = brick->getHeight();
             GLfloat width = brick->getWidth();
-            if(areOverlapping(collisionBoxBall, box, ballSize, width, height))
+            if(brick->isAlive() && areOverlapping(collisionBoxBall, box, ballSize, width, height))
             {
                 changedVelocity.x = ball->getVelocity().x;
                 changedVelocity.y = -ball->getVelocity().y;
@@ -205,6 +205,9 @@ void checkForCollisions()
 
 GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther, GLfloat ballSize,GLfloat otherWidth, GLfloat otherHeight)
 {
+    if(numberOfUpdates * limitFPS == 0.5 || numberOfUpdates * limitFPS == 1.0)
+        return GL_FALSE;
+
     GLfloat ballLeftX = collisionBoxBall.at(0);
     GLfloat ballRightX = collisionBoxBall.at(2);
     GLfloat ballTopY = collisionBoxBall.at(5);

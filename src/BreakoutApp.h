@@ -33,6 +33,9 @@ std::vector<BrickGroup*> brickGroups;
 GLuint rowsPerBrickGroup;
 GLuint numberOfBrickGroups;
 
+GLuint numberOfUpdates;
+GLdouble limitFPS;
+
 GLboolean initializeWindow();
 void initializeGameObjects();
 void initializeFrame();
