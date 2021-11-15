@@ -34,7 +34,9 @@ add_executable(breakout
         src/objects/Brick.cpp
         src/objects/Brick.h
         src/objects/BrickGroup.cpp
-        src/objects/BrickGroup.h)
+        src/objects/BrickGroup.h
+        src/objects/EndScreen.cpp
+        src/objects/EndScreen.h)
 
 # GLM
 find_package(GLM REQUIRED)

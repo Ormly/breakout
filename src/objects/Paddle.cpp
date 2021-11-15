@@ -2,8 +2,8 @@
 
 #include <utility>
 
-Paddle::Paddle(glm::vec2 center, GLfloat width, GLfloat height, std::vector<GLfloat> color) : RenderableRectangle(center, width, height, std::move(color)),
-m_offset(0.0f)
+Paddle::Paddle(glm::vec2 center, GLfloat width, GLfloat height, std::vector<GLfloat> color, GLfloat initialSpeed) : RenderableRectangle(center, width, height, std::move(color)),
+                                                                                                                    m_offset(0.0f), m_speed(initialSpeed)
 {
 
 }
@@ -61,4 +61,14 @@ std::vector<GLfloat> Paddle::getCollisionBox() const
     collisionBox.push_back(m_vertices.at(7));
 
     return collisionBox;
+}
+
+GLfloat Paddle::getSpeed() const
+{
+    return m_speed;
+}
+
+void Paddle::setSpeed(GLfloat speed)
+{
+    m_speed = speed;
 }

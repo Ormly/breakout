@@ -13,6 +13,12 @@
 #include "objects/Ball.h"
 #include "objects/Brick.h"
 #include "objects/BrickGroup.h"
+#include "objects/EndScreen.h"
+
+enum GameState
+{
+    RUNNING, WON, LOST
+};
 
 GLFWwindow* window;
 GLfloat windowWidth;
@@ -35,18 +41,28 @@ Paddle* paddle;
 Ball* ball;
 std::vector<BrickGroup*> brickGroups;
 
-
+GameState state;
 GLuint numberOfUpdates;
 GLdouble limitFPS;
+GLdouble previousTime;
+GLdouble timer;
+GLuint numberOfFrames;
 GLint collisionWaitTimer;
 GLint collisionWaitTime;
 
+EndScreen* lossScreen;
+EndScreen* winScreen;
+
 GLboolean initializeWindow();
+void init();
+void checkEndStates();
 void initializeGameObjects();
 void initializeBorders();
 void initializePaddle();
 void initializeBricks();
 void initializeBall();
+void initializeWinScreen();
+void initializeLossScreen();
 void update();
 void checkForCollisions();
 GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther);
