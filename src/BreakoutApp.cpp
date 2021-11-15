@@ -7,7 +7,6 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include "objects/Brick.h"
 
 static void error_callback(int error, const char* description)
 {
@@ -109,9 +108,9 @@ void update()
     ball->addToOffset(ball->getVelocity().x * deltaTime, ball->getVelocity().y * deltaTime);
     ballTranslation = glm::translate(identity, glm::vec3(ball->getOffset().x, ball->getOffset().y, 0.0f));
 
-    std::cout << "Ball velocity x:" << ball->getVelocity().x << " | y: " << ball->getVelocity().y << std::endl;
-    std::cout << "Ball addition (velocity * deltaTime) x:" << ball->getVelocity().x * deltaTime << " | y: " << ball->getVelocity().y * deltaTime << std::endl;
-    std::cout << "Ball offset x:" << ball->getOffset().x << " | y: " << ball->getOffset().y << std::endl;
+    std::cout << "OldBall velocity x:" << ball->getVelocity().x << " | y: " << ball->getVelocity().y << std::endl;
+    std::cout << "OldBall addition (velocity * deltaTime) x:" << ball->getVelocity().x * deltaTime << " | y: " << ball->getVelocity().y * deltaTime << std::endl;
+    std::cout << "OldBall offset x:" << ball->getOffset().x << " | y: " << ball->getOffset().y << std::endl;
 
     checkForCollisions();
 }
@@ -122,25 +121,14 @@ void checkForCollisions()
 
     std::vector<GLfloat> collisionBoxBall = ball->getCollisionBox();
     std::vector<GLfloat> collisionBoxPaddle = paddle->getCollisionBox();
-    std::vector<GLfloat> collisionBoxFrameLeft = frame->getCollisionBoxLeft();
-    std::vector<GLfloat> collisionBoxFrameRight = frame->getCollisionBoxRight();
-    std::vector<GLfloat> collisionBoxFrameTop = frame->getCollisionBoxTop();
-
-    GLfloat ballSize = ball->getSideLength();
-    GLfloat paddleWidth = paddle->getWidth();
-    GLfloat paddleHeight = paddle->getHeight();
-    GLfloat frameLeftHeight = frame->getLeftHeight();
-    GLfloat frameRightHeight = frame->getRightHeight();
-    GLfloat frameTopHeight = frame->getTopHeight();
-    GLfloat frameLeftWidth = frame->getLeftWidth();
-    GLfloat frameRightWidth = frame->getRightWidth();
-    GLfloat frameTopWidth = frame->getTopWidth();
-
+    std::vector<GLfloat> collisionBoxFrameLeft = leftBorder->getCollisionBox();
+    std::vector<GLfloat> collisionBoxFrameRight = rightBorder->getCollisionBox();
+    std::vector<GLfloat> collisionBoxFrameTop = upperBorder->getCollisionBox();
 
     //paddle collision
-    if (areOverlapping(collisionBoxBall, collisionBoxPaddle, ballSize, paddleWidth, paddleHeight))
+    if (areOverlapping(collisionBoxBall, collisionBoxPaddle))
     {
-        GLfloat radius = ball->getSideLength() / 2;
+        GLfloat radius = ball->getWidth() / 2;
         GLfloat ballLocation = ball->getCenter().x - (paddle->getCenter().x - radius - paddle->getWidth() / 2);
         GLfloat paddleEdge = ballLocation / paddle->getWidth();
 
@@ -165,21 +153,21 @@ void checkForCollisions()
     }
 
     //frame collision
-    if(areOverlapping(collisionBoxBall, collisionBoxFrameLeft, ballSize, frameLeftWidth, frameLeftHeight))
+    if(areOverlapping(collisionBoxBall, collisionBoxFrameLeft))
     {
         changedVelocity.x = -ball->getVelocity().x;
         changedVelocity.y = ball->getVelocity().y;
         ball->setVelocity(changedVelocity);
     }
 
-    if(areOverlapping(collisionBoxBall, collisionBoxFrameRight, ballSize, frameRightWidth, frameRightHeight))
+    if(areOverlapping(collisionBoxBall, collisionBoxFrameRight))
     {
         changedVelocity.x = -ball->getVelocity().x;
         changedVelocity.y = ball->getVelocity().y;
         ball->setVelocity(changedVelocity);
     }
 
-    if(areOverlapping(collisionBoxBall, collisionBoxFrameTop, ballSize, frameTopWidth, frameTopHeight))
+    if(areOverlapping(collisionBoxBall, collisionBoxFrameTop))
     {
         changedVelocity.x = ball->getVelocity().x;
         changedVelocity.y = -ball->getVelocity().y;
@@ -189,23 +177,21 @@ void checkForCollisions()
     //brick collision
     for(BrickGroup* brickGroup : brickGroups)
     {
-        for(const Brick* brick : brickGroup->getBricks())
+        for(Brick* brick : brickGroup->getBricks())
         {
             std::vector<GLfloat> box = brick->getCollisionBox();
-            GLfloat height = brick->getHeight();
-            GLfloat width = brick->getWidth();
-            if(brick->isAlive() && areOverlapping(collisionBoxBall, box, ballSize, width, height))
+            if(brick->isAlive() && areOverlapping(collisionBoxBall, box))
             {
                 changedVelocity.x = ball->getVelocity().x;
                 changedVelocity.y = -ball->getVelocity().y;
                 ball->setVelocity(changedVelocity);
-                brickGroup->kill(brick->getID());
+                brick->kill();
             }
         }
     }
 }
 
-GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther, GLfloat ballSize,GLfloat otherWidth, GLfloat otherHeight)
+GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther)
 {
     GLfloat ballLeftX = collisionBoxBall.at(0);
     GLfloat ballRightX = collisionBoxBall.at(2);
@@ -241,13 +227,19 @@ void render()
     renderer.clear();
 
     shaders->setUniformMat4f("u_translation", identity);
-    shaders->setUniform4f("u_color", frame->getColor().at(0), frame->getColor().at(1), frame->getColor().at(2), frame->getColor().at(3));
-    renderer.draw(*(frame->getVertexArray()),*(frame->getIndexBuffer()), *shaders);
+    shaders->setUniform4f("u_color", leftBorder->getColor().at(0), leftBorder->getColor().at(1), leftBorder->getColor().at(2), leftBorder->getColor().at(3));
+    renderer.draw(*(leftBorder->getVertexArray()),*(leftBorder->getIndexBuffer()), *shaders);
+    renderer.draw(*(rightBorder->getVertexArray()),*(rightBorder->getIndexBuffer()), *shaders);
+    renderer.draw(*(upperBorder->getVertexArray()),*(upperBorder->getIndexBuffer()), *shaders);
 
     for(BrickGroup* brickGroup : brickGroups)
     {
-        shaders->setUniform4f("u_color", brickGroup->getColor().at(0), brickGroup->getColor().at(1), brickGroup->getColor().at(2), brickGroup->getColor().at(3));
-        renderer.draw(*(brickGroup->getVertexArray()),*(brickGroup->getIndexBuffer()), *shaders);
+        shaders->setUniform4f("u_color", brickGroup->getBricks().at(0)->getColor().at(0), brickGroup->getBricks().at(0)->getColor().at(1),
+                              brickGroup->getBricks().at(0)->getColor().at(2), brickGroup->getBricks().at(0)->getColor().at(3));
+
+        for(Brick* brick : brickGroup->getBricks())
+            if(brick->isAlive())
+                renderer.draw(*(brick->getVertexArray()), *(brick->getIndexBuffer()), *shaders);
     }
 
     shaders->setUniformMat4f("u_translation", paddleTranslation);
@@ -310,179 +302,97 @@ GLboolean initializeWindow()
 
 void initializeGameObjects()
 {
-    initializeFrame();
+    initializeBorders();
     initializePaddle();
     initializeBricks();
     initializeBall();
 }
 
-void initializeFrame()
+void initializeBorders()
 {
-    std::vector<GLfloat> frameData =
-    {
-        0.0f,0.0f,
-        20.0f,0.0f,
-        748.0f,0.0f,
-        768.0f,0.0f,
-        768.0f,1004.0f,
-        768.0f,1024.0f,
-        748.0f,1024.0f,
-        20.0f,1024.0f,
-        0.0f,1024.0f,
-        0.0f,1004.0f
-    };
-
-    std::vector<GLuint> frameIndices =
-    {
-        0,1,7,
-        7,8,0,
-        2,3,5,
-        5,6,2,
-        4,5,8,
-        8,9,4
-    };
-
-    //Todo: Make this not be stupid as hell
-    std::vector<GLuint> frameCollisionBoxFirst({0,1,7,8});
-    std::vector<GLuint> frameCollisionBoxSecond({2,3,5,6});
-    std::vector<GLuint> frameCollisionBoxThird({4,5,8,9});
-    std::vector<std::vector<GLuint>> frameCollisionBoxes;
-    frameCollisionBoxes.push_back(frameCollisionBoxFirst);
-    frameCollisionBoxes.push_back(frameCollisionBoxSecond);
-    frameCollisionBoxes.push_back(frameCollisionBoxThird);
+    glm::vec2 leftCenter(10.0f,512.0f);
+    glm::vec2 rightCenter(758.0f, 512.0f);
+    glm::vec2 upperCenter(384.0f,1014.0f);
+    //glm::vec2 lowerCenter(384.0f,10.0f);
     std::vector<GLfloat> frameColor({0.823f,0.823f,0.823f,1.0f});
+    GLfloat verticalWidth = 20.0f;
+    GLfloat horizontalHeight = 20.0f;
+    GLfloat horizontalWidth = 768.0f;
+    GLfloat verticalHeight = 1024.0f;
 
-    std::vector<GLfloat> widths;
-    widths.push_back(frameData.at(2) - frameData.at(0));
-    widths.push_back(frameData.at(6) - frameData.at(4));
-    widths.push_back(frameData.at(8) - frameData.at(18));
-
-    std::vector<GLfloat> heights;
-    heights.push_back(frameData.at(17) - frameData.at(1));
-    heights.push_back(frameData.at(13) - frameData.at(5));
-    heights.push_back(frameData.at(11) - frameData.at(9));
-
-
-    /*
-    GLfloat xCenter = (paddleData.at(6) + paddleData.at(2)) / 2;
-    GLfloat yCenter = (paddleData.at(7) + paddleData.at(3)) / 2;
-    glm::vec2 paddleCenter(xCenter, yCenter);
-     */
-
-    std::vector<glm::vec2> centers;
-    GLfloat leftXCenter = (frameData.at(16) + frameData.at(2)) / 2;
-    GLfloat leftYCenter = (frameData.at(17) + frameData.at(3)) / 2;
-    glm::vec2 leftCenter(leftXCenter, leftYCenter);
-    centers.push_back(leftCenter);
-    GLfloat rightXCenter = (frameData.at(12) + frameData.at(6)) / 2;
-    GLfloat rightYCenter = (frameData.at(13) + frameData.at(7)) / 2;
-    glm::vec2 rightCenter(rightXCenter, rightYCenter);
-    centers.push_back(rightCenter);
-    GLfloat topXCenter = (frameData.at(16) + frameData.at(8)) / 2;
-    GLfloat topYCenter = (frameData.at(17) + frameData.at(9)) / 2;
-    glm::vec2 topCenter(topXCenter, topYCenter);
-    centers.push_back(topCenter);
-
-    frame = new Frame(frameData, frameData.size() * sizeof(GLfloat), frameIndices, frameIndices.size(), frameCollisionBoxes, frameColor, widths, heights, centers);
+    leftBorder = new RenderableRectangle(leftCenter, verticalWidth, verticalHeight, frameColor);
+    rightBorder = new RenderableRectangle(rightCenter, verticalWidth, verticalHeight, frameColor);
+    upperBorder = new RenderableRectangle(upperCenter, horizontalWidth, horizontalHeight, frameColor);
 }
 
 void initializePaddle()
 {
-    std::vector<GLfloat> paddleData =
-    {
-        334.0f,50.0f,
-        434.0f,50.0f,
-        434.0f,70.0f,
-        334.0f,70.0f
-    };
+    glm::vec2 paddleCenter(384.0f, 60.0f);
 
-    std::vector<GLuint> paddleIndices =
-    {
-        0,1,2,
-        2,3,0
-    };
+    GLfloat paddleWidth = 100.0f;
+    GLfloat paddleHeight = 20.0f;
 
-    std::vector<GLfloat> paddleColor({0.0f,0.36f,0.541f,1.0f});
-    GLfloat xCenter = (paddleData.at(6) + paddleData.at(2)) / 2;
-    GLfloat yCenter = (paddleData.at(7) + paddleData.at(3)) / 2;
-    glm::vec2 paddleCenter(xCenter, yCenter);
+    std::vector<GLfloat> paddleColor({0.0f, 0.36f, 0.541f, 1.0f});
 
-
-    paddle = new Paddle(paddleData, paddleData.size() * sizeof(GLfloat), paddleIndices, paddleIndices.size(),
-                        paddleColor, paddleData.at(2) - paddleData.at(0), paddleData.at(5) - paddleData.at(3),
-                        paddleCenter);
+    paddle = new Paddle(paddleCenter, paddleWidth, paddleHeight, paddleColor);
 }
 
 void initializeBricks()
 {
-    rowsPerBrickGroup = 2;
-    numberOfBrickGroups = 1;
+    GLuint bricksPerRow = 12;
+    GLuint rowsPerGroup = 2;
+    GLfloat brickWidth = 57.0f;
+    GLfloat brickHeight = 14.0f;
+    GLfloat bufferZone = 2.0f;
 
-    std::vector<GLuint> originBrickIndices =
-    {
-        0,1,2,
-        2,3,0
-    };
-
-    std::vector<GLfloat> firstLayerOriginBrickPositions =
-    {
-        31.0f, 820.0f,
-        88.0f, 820.0f,
-        88.0f, 834.0f,
-        31.0f, 834.0f
-    };
+    //Todo: make this not stupid
+    glm::vec2 firstLayerOriginBrickCenter(59.5f, 827.0f);
     std::vector<GLfloat> firstLayerColor({0.631f, 0.031f, 0.0f, 1.0f});
-    BrickGroup* firstLayer = createBrickGroup(firstLayerOriginBrickPositions, originBrickIndices, firstLayerColor);
-    brickGroups.push_back(firstLayer);
-
-    /*
-    numberOfBrickGroups++;
-    std::vector<GLfloat> secondLayerOriginBrickPositions;
-    for(int i = 0; i < firstLayer->getBricks().at(0).getPositions().size(); ++i)
-    {
-        if(i % 2 != 0)
-        {
-            secondLayerOriginBrickPositions.push_back(firstLayer->getBricks().at(0).getPositions().at(i) - numberOfBrickGroups *
-                                                     (firstLayer->getBricks().at(0).getPositions().at(5) - firstLayer->getBricks().at(0).getPositions().at(3) + 2.0f));
-        }
-        else
-            secondLayerOriginBrickPositions.push_back(firstLayer->getBricks().at(0).getPositions().at(i));
-    }
-     */
-
-    //Todo: derive subsequent layer positions from first origin instead of hardcoding magic numbers
-    std::vector<GLfloat> secondLayerOriginBrickPositions =
-    {
-        31.0f, 788.0f,
-        88.0f, 788.0f,
-        88.0f, 802.0f,
-        31.0f, 802.0f
-    };
+    glm::vec2 secondLayerOriginBrickCenter(59.5f, 795.0f);
     std::vector<GLfloat> secondLayerColor({0.772f, 0.501f, 0.0f, 1.0f});
-    BrickGroup* secondLayer = createBrickGroup(secondLayerOriginBrickPositions, originBrickIndices, secondLayerColor);
-    brickGroups.push_back(secondLayer);
-
-    std::vector<GLfloat> thirdLayerOriginBrickPositions =
-    {
-        31.0f, 756.0f,
-        88.0f, 756.0f,
-        88.0f, 770.0f,
-        31.0f, 770.0f
-    };
+    glm::vec2 thirdLayerOriginBrickCenter(59.5f, 763.0f);
     std::vector<GLfloat> thirdLayerColor({0.0f, 0.498f, 0.137f, 1.0f});
-    BrickGroup* thirdLayer = createBrickGroup(thirdLayerOriginBrickPositions, originBrickIndices, thirdLayerColor);
-    brickGroups.push_back(thirdLayer);
-
-    std::vector<GLfloat> fourthLayerOriginBrickPositions =
-    {
-        31.0f, 724.0f,
-        88.0f, 724.0f,
-        88.0f, 738.0f,
-        31.0f, 738.0f
-    };
+    glm::vec2 fourthLayerOriginBrickCenter(59.5f, 731.0f);
     std::vector<GLfloat> fourthLayerColor({0.768f, 0.776f, 0.121f, 1.0f});
-    BrickGroup* fourthLayer = createBrickGroup(fourthLayerOriginBrickPositions, originBrickIndices, fourthLayerColor);
-    brickGroups.push_back(fourthLayer);
+
+    brickGroups.push_back(createBrickGroup(firstLayerOriginBrickCenter, brickWidth, brickHeight, firstLayerColor, rowsPerGroup, bricksPerRow, bufferZone));
+    brickGroups.push_back(createBrickGroup(secondLayerOriginBrickCenter, brickWidth, brickHeight, secondLayerColor, rowsPerGroup, bricksPerRow, bufferZone));
+    brickGroups.push_back(createBrickGroup(thirdLayerOriginBrickCenter, brickWidth, brickHeight, thirdLayerColor, rowsPerGroup, bricksPerRow, bufferZone));
+    brickGroups.push_back(createBrickGroup(fourthLayerOriginBrickCenter, brickWidth, brickHeight, fourthLayerColor, rowsPerGroup, bricksPerRow, bufferZone));
+}
+
+BrickGroup* createBrickGroup(glm::vec2 originBrickCenter, GLfloat brickWidth, GLfloat brickHeight,
+                              std::vector<GLfloat> brickColor, GLuint rowsPerGroup, GLuint bricksPerRow, GLfloat bufferZone)
+{
+    std::vector<Brick*> bricks;
+    Brick* originBrick;
+    originBrick = new Brick(originBrickCenter, brickWidth, brickHeight, std::move(brickColor));
+    bricks.push_back(originBrick);
+
+    glm::vec2 previousBrickCenter = originBrickCenter;
+
+    for(int i = 0; i < rowsPerGroup; ++i)
+    {
+        if(i != 0)
+        {
+            glm::vec2 temp(originBrickCenter.x, originBrickCenter.y - ((brickHeight + bufferZone) * i));
+            originBrick = new Brick(temp, brickWidth, brickHeight, std::move(brickColor));
+            bricks.push_back(originBrick);
+            previousBrickCenter = temp;
+        }
+
+        for(int j = 1; j < bricksPerRow; ++j)
+        {
+            glm::vec2 brickCenterToAdd(previousBrickCenter.x + brickWidth + bufferZone, previousBrickCenter.y);
+            previousBrickCenter = brickCenterToAdd;
+            auto* brickToAdd = new Brick(brickCenterToAdd, brickWidth, brickHeight, std::move(brickColor));
+            bricks.push_back(brickToAdd);
+        }
+    }
+
+    auto* brickGroup = new BrickGroup(bricks);
+
+    return brickGroup;
 }
 
 void initializeBall()
@@ -495,115 +405,16 @@ void initializeBall()
     GLfloat initialX = initialPositionDistribution(eng);
     GLfloat initialY = windowHeight / 2.0f;
 
-    std::vector<GLfloat> positions =
-    {
-        initialX - sideLength / 2, initialY - sideLength / 2,
-        initialX + sideLength / 2, initialY - sideLength / 2,
-        initialX + sideLength / 2, initialY + sideLength / 2,
-        initialX - sideLength / 2, initialY + sideLength / 2
-    };
+    glm::vec2 ballCenter(initialX, initialY);
 
-    std::vector<GLuint> indices =
-    {
-        0,1,2,
-        2,3,0
-    };
-
-    std::vector<GLuint> collisionBox({0,1,2,3});
     std::vector<GLfloat> color({1.0f,1.0f,1.0f,1.0f});
 
     std::uniform_real_distribution<float> initialVelocityDistributionX(-0.1f, 0.1f);
     std::uniform_real_distribution<float> initialVelocityDistributionY(-0.9f, -1.0f);
     glm::vec2 initialVelocity(initialVelocityDistributionX(eng), initialVelocityDistributionY(eng));
-    //glm::vec2 initialVelocity(0.5f,-1.0f);
-    glm::vec2 initialCenter(initialX, initialY);
     GLfloat initialSpeed = 5.0f;
-    ball = new Ball(positions, indices, color, initialVelocity, initialCenter, initialSpeed, sideLength);
+
+    ball = new Ball(ballCenter, sideLength, sideLength, color, initialVelocity, initialSpeed);
 }
 
-//This is the dumbest code I've ever written
-BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vector<GLuint> originBrickIndices, std::vector<GLfloat> color)
-{
-    std::vector<Brick*> bricks;
-    std::vector<GLuint> brickLayout;
-    GLuint id = 0;
 
-    GLfloat xCenter = (originBrickPositions.at(6) + originBrickPositions.at(2)) / 2;
-    GLfloat yCenter = (originBrickPositions.at(7) + originBrickPositions.at(3)) / 2;
-    glm::vec2 originBrickCenter(xCenter, yCenter);
-
-    auto* originBrick = new Brick(originBrickPositions, id++,
-                                  originBrickPositions.at(5) - originBrickPositions.at(3), originBrickPositions.at(2) - originBrickPositions.at(0) ,originBrickCenter);
-    bricks.push_back(originBrick);
-    brickLayout.insert(brickLayout.end(), originBrickIndices.begin(), originBrickIndices.end());
-
-    std::vector<GLfloat> previousBrickPositions;
-    std::vector<GLfloat> brickToAddPositions;
-    std::vector<GLuint> brickToAddIndices;
-    GLuint counter = 2;
-    for(int i = 0; i < rowsPerBrickGroup; ++i)
-    {
-        if(i == 0)
-            previousBrickPositions = originBrickPositions;
-        else
-        {
-            previousBrickPositions.clear();
-            for(int j = 0; j < originBrickPositions.size(); ++j)
-            {
-                if(j % 2 != 0)
-                    previousBrickPositions.push_back(originBrickPositions.at(j) -
-                                                     (originBrickPositions.at(5) - originBrickPositions.at(3) + 2.0f));
-                else
-                    previousBrickPositions.push_back(originBrickPositions.at(j));
-            }
-            GLfloat previousBrickCenterX = (previousBrickPositions.at(6) + previousBrickPositions.at(2)) / 2;
-            GLfloat previousBrickCenterY = (previousBrickPositions.at(7) + previousBrickPositions.at(3)) / 2;
-            glm::vec2 previousBrickCenter(previousBrickCenterX, previousBrickCenterY);
-            bricks.push_back(new Brick(previousBrickPositions, id++,
-                                         previousBrickPositions.at(5) - previousBrickPositions.at(3),previousBrickPositions.at(2) - previousBrickPositions.at(0) ,previousBrickCenter));
-
-            brickToAddIndices.clear();
-            for(unsigned int layerZeroOriginBrickIndex : originBrickIndices)
-                brickToAddIndices.push_back(layerZeroOriginBrickIndex + counter * 4 - 4);
-
-            counter++;
-
-            brickLayout.insert(brickLayout.end(), brickToAddIndices.begin(), brickToAddIndices.end());
-        }
-
-        for(int j = 0; j < 11; ++j)
-        {
-            Brick* brickToAdd;
-            brickToAddIndices.clear();
-            brickToAddPositions.clear();
-
-            for(int k = 0; k < previousBrickPositions.size(); ++k)
-            {
-                if(k % 2 == 0)
-                    brickToAddPositions.push_back(previousBrickPositions.at(k) +
-                                                  (previousBrickPositions.at(2) - previousBrickPositions.at(0) + 2.0f)); //Todo: 2.0f --> padding member
-                else
-                    brickToAddPositions.push_back(previousBrickPositions.at(k));
-            }
-
-            brickToAddIndices.reserve(originBrickIndices.size());
-            for(unsigned int layerZeroOriginBrickIndex : originBrickIndices)
-                brickToAddIndices.push_back(layerZeroOriginBrickIndex + counter * 4 - 4);
-
-            counter++;
-
-            GLfloat brickToAddXCenter = (brickToAddPositions.at(6) + brickToAddPositions.at(2)) / 2;
-            GLfloat brickToAddYCenter = (brickToAddPositions.at(7) + brickToAddPositions.at(3)) / 2;
-            glm::vec2 brickToAddCenter(brickToAddXCenter, brickToAddYCenter);
-            brickToAdd = new Brick(brickToAddPositions, id++,
-                                   brickToAddPositions.at(5) - brickToAddPositions.at(3),brickToAddPositions.at(2) - brickToAddPositions.at(0) ,brickToAddCenter);
-            bricks.push_back(brickToAdd);
-            brickLayout.insert(brickLayout.end(), brickToAddIndices.begin(), brickToAddIndices.end());
-
-            previousBrickPositions = brickToAddPositions;
-        }
-    }
-
-    auto* brickGroup = new BrickGroup(bricks, brickLayout, std::move(color));
-    return brickGroup;
-}

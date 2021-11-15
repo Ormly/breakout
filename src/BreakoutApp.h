@@ -3,14 +3,16 @@
 
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
-#include "objects/Frame.h"
-#include "objects/Paddle.h"
 #include "renderer/VertexArray.h"
 #include "renderer/IndexBuffer.h"
 #include "renderer/Shaders.h"
 #include "renderer/Renderer.h"
-#include "objects/BrickGroup.h"
+#include "objects/Rectangle.h"
+#include "objects/RenderableRectangle.h"
+#include "objects/Paddle.h"
 #include "objects/Ball.h"
+#include "objects/Brick.h"
+#include "objects/BrickGroup.h"
 
 GLFWwindow* window;
 GLfloat windowWidth;
@@ -25,13 +27,14 @@ glm::mat4 ballTranslation;
 Renderer renderer;
 Shaders* shaders;
 
-Frame* frame;
+RenderableRectangle* leftBorder;
+RenderableRectangle* lowerBorder;
+RenderableRectangle* rightBorder;
+RenderableRectangle* upperBorder;
 Paddle* paddle;
 Ball* ball;
-
 std::vector<BrickGroup*> brickGroups;
-GLuint rowsPerBrickGroup;
-GLuint numberOfBrickGroups;
+
 
 GLuint numberOfUpdates;
 GLdouble limitFPS;
@@ -40,14 +43,15 @@ GLint collisionWaitTime;
 
 GLboolean initializeWindow();
 void initializeGameObjects();
-void initializeFrame();
+void initializeBorders();
 void initializePaddle();
 void initializeBricks();
 void initializeBall();
 void update();
 void checkForCollisions();
-GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther, GLfloat ballSize,GLfloat otherWidth, GLfloat otherHeight);
+GLboolean areOverlapping(std::vector<GLfloat> collisionBoxBall, std::vector<GLfloat> collisionBoxOther);
 void render();
-BrickGroup* createBrickGroup(std::vector<GLfloat> originBrickPositions, std::vector<GLuint> originBrickIndices, std::vector<GLfloat> color);
+BrickGroup* createBrickGroup(glm::vec2 originBrickCenter, GLfloat brickWidth, GLfloat brickHeight, std::vector<GLfloat> brickColor,
+                              GLuint rowsPerBrickGroup, GLuint bricksPerBrickGroupRow, GLfloat bufferZone);
 
 #endif //BREAKOUT_BREAKOUTAPP_H

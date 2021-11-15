@@ -23,14 +23,16 @@ add_executable(breakout
         src/renderer/Renderer.h
         src/renderer/Shaders.cpp
         src/renderer/Shaders.h
+        src/objects/Rectangle.cpp
+        src/objects/Rectangle.h
+        src/objects/RenderableRectangle.cpp
+        src/objects/RenderableRectangle.h
         src/objects/Paddle.cpp
         src/objects/Paddle.h
-        src/objects/Frame.cpp
-        src/objects/Frame.h
-        src/objects/Brick.cpp
-        src/objects/Brick.h
         src/objects/Ball.cpp
         src/objects/Ball.h
+        src/objects/Brick.cpp
+        src/objects/Brick.h
         src/objects/BrickGroup.cpp
         src/objects/BrickGroup.h)
 
