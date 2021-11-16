@@ -48,29 +48,10 @@ int main()
         {
             glfwPollEvents();
             update();
-            numberOfUpdates++;
             deltaTime--;
         }
 
         render();
-
-        numberOfFrames++;
-        if (glfwGetTime() - timer > 1.0)
-        {
-            timer++;
-
-            /*
-            std::cout <<
-            "FPS: " <<
-            numberOfFrames <<
-            " || # updates per second: " <<
-            numberOfUpdates <<
-            std::endl;
-             */
-
-            numberOfUpdates = 0, numberOfFrames = 0;
-        }
-
         glfwSwapBuffers(window);
     }
 
@@ -95,7 +76,7 @@ void init()
     deltaTime = 0;
     numberOfFrames = 0;
     numberOfUpdates = 0;
-    collisionWaitTime = 5;
+    collisionWaitTime = 7;
     collisionWaitTimer = collisionWaitTime;
 }
 
@@ -390,7 +371,7 @@ void initializeBorders()
     leftBorder = new RenderableRectangle(leftCenter, verticalWidth, verticalHeight, frameColor);
     rightBorder = new RenderableRectangle(rightCenter, verticalWidth, verticalHeight, frameColor);
     upperBorder = new RenderableRectangle(upperCenter, horizontalWidth, horizontalHeight, frameColor);
-    lowerBorder = new RenderableRectangle(lowerCenter, horizontalWidth, horizontalHeight, lowerFrameColor);
+    lowerBorder = new RenderableRectangle(lowerCenter, horizontalWidth - 40.0f, horizontalHeight, lowerFrameColor);
 }
 
 void initializePaddle()
