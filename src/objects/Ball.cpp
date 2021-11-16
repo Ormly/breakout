@@ -52,3 +52,15 @@ void Ball::addToSpeed(GLfloat addition)
     m_velocity.x += addition;
     m_velocity.y += addition;
 }
+
+void Ball::setPosition(glm::vec2 position)
+{
+    m_offset.x = 0;
+    m_offset.y = 0;
+    m_center.x = position.x;
+    m_center.y = position.y;
+    updateVertices();
+    resetBuffer();
+}
+
+

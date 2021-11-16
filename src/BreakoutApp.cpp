@@ -109,10 +109,10 @@ void update()
         paddleTranslation = glm::translate(identity, glm::vec3(paddle->getOffset(), 0.0f, 0.0f));
     }
 
+    checkForCollisions();
+
     ball->addToOffset(ball->getVelocity().x * deltaTime, ball->getVelocity().y * deltaTime);
     ballTranslation = glm::translate(identity, glm::vec3(ball->getOffset().x, ball->getOffset().y, 0.0f));
-
-    checkForCollisions();
 
     if (state == RUNNING)
     {
@@ -162,6 +162,9 @@ void checkForCollisions()
             changedVelocity.y = -ball->getVelocity().y;
             ball->setVelocity(changedVelocity);
         }
+
+        glm::vec2 position(ball->getCenter().x, paddle->getCenter().y + paddle->getHeight() / 2 + ball->getHeight() / 2 + 1.0f);
+        ball->setPosition(position);
     }
 
     //frame collision
@@ -170,6 +173,9 @@ void checkForCollisions()
         changedVelocity.x = -ball->getVelocity().x;
         changedVelocity.y = ball->getVelocity().y;
         ball->setVelocity(changedVelocity);
+
+        glm::vec2 position(leftBorder->getCenter().x + leftBorder->getWidth() / 2 + ball->getWidth() / 2 + 1.0f, ball->getCenter().y);
+        ball->setPosition(position);
     }
 
     if(areOverlapping(collisionBoxBall, collisionBoxFrameRight))
@@ -177,6 +183,9 @@ void checkForCollisions()
         changedVelocity.x = -ball->getVelocity().x;
         changedVelocity.y = ball->getVelocity().y;
         ball->setVelocity(changedVelocity);
+
+        glm::vec2 position(rightBorder->getCenter().x - rightBorder->getWidth() / 2 - ball->getWidth() / 2 - 1.0f, ball->getCenter().y);
+        ball->setPosition(position);
     }
 
     if(areOverlapping(collisionBoxBall, collisionBoxFrameTop))
@@ -184,6 +193,9 @@ void checkForCollisions()
         changedVelocity.x = ball->getVelocity().x;
         changedVelocity.y = -ball->getVelocity().y;
         ball->setVelocity(changedVelocity);
+
+        glm::vec2 position(ball->getCenter().x, upperBorder->getCenter().y - upperBorder->getHeight() / 2 - ball->getHeight() / 2 - 1.0f);
+        ball->setPosition(position);
     }
 
     if(areOverlapping(collisionBoxBall, collisionBoxFrameBottom))
@@ -459,6 +471,7 @@ void initializeBall()
 
     std::vector<GLfloat> color({1.0f,1.0f,1.0f,1.0f});
 
+    //Todo: fix this craziness
     std::uniform_real_distribution<float> initialVelocityDistributionX(-0.1f, 0.1f);
     std::uniform_real_distribution<float> initialVelocityDistributionY(-0.9f, -1.0f);
     glm::vec2 initialVelocity(initialVelocityDistributionX(eng), initialVelocityDistributionY(eng));

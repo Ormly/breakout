@@ -8,7 +8,7 @@ class Ball : public RenderableRectangle
 private:
     glm::vec2 m_velocity;
     glm::vec2 m_offset;
-    GLfloat m_speed;
+    GLfloat m_speed; //Todo: make this make sense
 public:
     Ball(glm::vec2 center, GLfloat width, GLfloat height, std::vector<GLfloat> color, glm::vec2 initialVelocity, GLfloat initialSpeed);
     void setSpeed(GLfloat speed);
@@ -18,6 +18,7 @@ public:
     void addToOffset(GLfloat additionX, GLfloat additionY);
     glm::vec2 getOffset() const;
     void addToSpeed(GLfloat addition);
+    void setPosition(glm::vec2 position);
 };
 
 
